@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Stylist - Smart Wardrobe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="users.js"></script>
+    <script src="tutorial.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!userDB.isLoggedIn()) {
+                window.location.href = 'login.html';
+            }
+            
+            // Logout functionality
+            document.getElementById('logout-btn-main').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    userDB.logoutUser();
+                    sessionStorage.clear();
+                    localStorage.removeItem('isLoggedIn');
+                    window.location.href = 'landing.html';
+                }
+            });
+
+            // Settings functionality
+            document.getElementById('settings-btn-main').addEventListener('click', function() {
+                window.location.href = 'settings.html';
+            });
+        });
+
+        // Simple sidebar toggle function
+        window.toggleSidebar = function() {
+            document.body.classList.toggle('sidebar-collapsed');
+            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+            const label = document.querySelector('.label');
+            const icon = document.querySelector('.fa-chevron-left');
+            
+            if (label) label.textContent = isCollapsed ? 'Expand' : 'Collapse';
+            if (icon) icon.classList.toggle('fa-rotate-180', isCollapsed);
+            
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        };
+    </script>
+</head>
+<body>
+
+    <aside class="app-sidebar">
+        <div class="app-header">
+            <img src="assets/logo.png" alt="Logo"/>
+            <h1 class="app-title">Smart Wardrobe</h1>
+            </div>
+        <nav class="app-nav" data-active="2">
+            <div class="nav-glider-container">
+                <div class="nav-glider"></div>
+            </div>
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i><span class="nav-link-text">Dashboard</span>
+            </a>
+            <a href="wardrobe.html" class="nav-link">
+                <i class="fas fa-tshirt"></i><span class="nav-link-text">My Wardrobe</span>
+            </a>
+            <a href="ai-stylist.html" class="nav-link active">
+                <i class="fas fa-robot"></i><span class="nav-link-text">AI Outfits</span>
+            </a>
+            <a href="style-guide.html" class="nav-link">
+                <i class="fas fa-chart-bar"></i><span class="nav-link-text">Analytics</span>
+            </a>
+            <a href="ai-cloth-changer.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"></path><path d="M17 20V4"></path><path d="m3 8 4-4 4 4"></path><path d="M7 4v16"></path></svg><span class="nav-link-text">AI Cloth Changer</span>
+            </a>
+        </nav>
+        <div class="app-bottom">
+            <button id="sidebar-toggle" class="btn-sidebar-toggle" onclick="toggleSidebar()">
+                <div class="button-outer">
+                    <div class="button-inner">
+                        <span class="label">Collapse</span>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <div class="app-content">
+        <header class="app-topbar">
+            <button class="settings-btn" id="settings-btn-main">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+            <button class="logout-btn" id="logout-btn-main">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </header>
+
+        <main class="ai-stylist-content">
+            <style>
+                .ai-stylist-content {
+                    padding: 32px;
+                    background: #0f0f23;
+                    min-height: calc(100vh - 70px);
+                }
+
+                .settings-btn {
+                    background: linear-gradient(135deg, #a855f7, #7c3aed);
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-right: 12px;
+                }
+
+                .settings-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+                }
+
+                .app-topbar {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                    padding: 20px 32px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .ai-engine-container {
+                    max-width: 1600px;
+                    margin: 0 auto;
+                }
+                
+                .page-header-ai {
+                    text-align: center;
+                    margin-bottom: 48px;
+                    animation: fadeInDown 0.6s ease;
+                }
+                
+                .page-header-ai h1 {
+                    font-size: 3em;
+                    font-weight: 700;
+                    margin-bottom: 16px;
+                    background: linear-gradient(135deg, #fff, #a8edea);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+                
+                .page-header-ai p {
+                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 1.2em;
+                }
+                
+                /* Context Panel - Moved to middle */
+                .context-panel {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 16px;
+                    padding: 16px;
+                    margin: 32px auto;
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                    animation: fadeIn 0.8s ease;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                    max-width: 600px;
+                }
+                
+                .context-card {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    text-align: center;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    transition: all 0.3s ease;
+                    min-width: 80px;
+                }
+                
+                .context-card:hover {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.12) 100%);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                }
+                
+                .context-icon {
+                    font-size: 1.8em;
+                    margin-bottom: 4px;
+                    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+                }
+                
+                .context-label {
+                    color: rgba(255, 255, 255, 0.7);
+                    font-size: 0.75em;
+                    margin-bottom: 2px;
+                    font-weight: 500;
+                }
+                
+                .context-value {
+                    color: #fff;
+                    font-weight: 700;
+                    font-size: 0.9em;
+                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+                }
+                
+                /* Generate Section */
+                .generate-section {
+                    text-align: center;
+                    margin-bottom: 48px;
+                }
+                
+                .generate-btn {
+                    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+                    border: none;
+                    color: #fff;
+                    padding: 20px 48px;
+                    border-radius: 50px;
+                    font-size: 1.2em;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+                    transition: all 0.3s;
+                    animation: pulse 2s infinite;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .generate-btn:hover {
+                    transform: scale(1.05);
+                    box-shadow: 0 12px 32px rgba(124, 58, 237, 0.6);
+                }
+                
+                .generate-btn:active {
+                    transform: scale(0.98);
+                }
+                
+                /* Outfit Cards Grid */
+                .outfit-cards-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+                    gap: 32px;
+                    margin-bottom: 48px;
+                }
+                
+                .outfit-card {
+                    background: rgba(255, 255, 255, 0.04);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    padding: 20px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                @keyframes slideInUp {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .outfit-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 20px;
+                }
+                
+                .outfit-title {
+                    font-size: 1.5em;
+                    font-weight: 700;
+                    color: #fff;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .outfit-score {
+                    background: linear-gradient(135deg, #10b981, #3b82f6);
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    font-weight: 600;
+                    color: #fff;
+                    font-size: 0.9em;
+                }
+                
+                .outfit-score.excellent {
+                    background: linear-gradient(135deg, #10b981, #059669);
+                }
+                
+                .outfit-score.good {
+                    background: linear-gradient(135deg, #3b82f6, #2563eb);
+                }
+                
+                .outfit-score.average {
+                    background: linear-gradient(135deg, #f59e0b, #d97706);
+                }
+                
+                .outfit-score.poor {
+                    background: linear-gradient(135deg, #ef4444, #dc2626);
+                }
+                
+                .outfit-items {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                    gap: 12px;
+                    margin-bottom: 20px;
+                }
+                
+                .outfit-item {
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 12px;
+                    padding: 12px;
+                    text-align: center;
+                    transition: all 0.3s;
+                }
+                
+                .outfit-item:hover {
+                    background: rgba(255, 255, 255, 0.15);
+                    transform: scale(1.05);
+                }
+                
+                .item-emoji {
+                    font-size: 2.5em;
+                    margin-bottom: 8px;
+                }
+                
+                .item-image {
+                    width: 60px;
+                    height: 60px;
+                    object-fit: cover;
+                    border-radius: 12px;
+                    margin-bottom: 8px;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                    transition: all 0.3s ease;
+                }
+                
+                .item-image:hover {
+                    transform: scale(1.1);
+                    border-color: rgba(255, 255, 255, 0.4);
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+                }
+                
+                .item-name {
+                    color: #fff;
+                    font-size: 0.85em;
+                    font-weight: 500;
+                }
+                
+                .item-category {
+                    color: rgba(255, 255, 255, 0.6);
+                    font-size: 0.75em;
+                    font-weight: 400;
+                    text-transform: capitalize;
+                    margin-top: 2px;
+                }
+                
+                .outfit-reason {
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(59, 130, 246, 0.2));
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 16px;
+                    padding: 16px;
+                    margin-bottom: 20px;
+                }
+                
+                .outfit-reason h4 {
+                    color: #fff;
+                    margin-bottom: 8px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                .outfit-reason p {
+                    color: rgba(255, 255, 255, 0.9);
+                    line-height: 1.6;
+                }
+                
+                .outfit-actions {
+                    display: flex;
+                    gap: 12px;
+                    margin-top: 15px;
+                }
+                
+                .btn-secondary, .btn-primary {
+                    flex: 1;
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    border: none;
+                    font-weight: 600;
+                    font-size: 0.9em;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .btn-secondary {
+                    background: linear-gradient(135deg, #10b981, #059669);
+                    color: white;
+                    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+                }
+                
+                .btn-secondary:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+                    background: linear-gradient(135deg, #059669, #047857);
+                }
+                
+                .btn-secondary:active {
+                    transform: translateY(0);
+                }
+                
+                .btn-primary {
+                    background: linear-gradient(135deg, #3b82f6, #2563eb);
+                    color: white;
+                    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+                }
+                
+                .btn-primary:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+                    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+                }
+                
+                .btn-primary:active {
+                    transform: translateY(0);
+                }
+                
+                .btn-primary.loading {
+                    background: linear-gradient(135deg, #6b7280, #4b5563);
+                    cursor: not-allowed;
+                }
+                
+                .btn-primary.loading i {
+                    animation: spin 1s linear infinite;
+                }
+                
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                
+                /* Feedback Modal */
+                .feedback-modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 2000;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                }
+                
+                .feedback-modal.active {
+                    opacity: 1;
+                    visibility: visible;
+                }
+                
+                .feedback-content {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 20px;
+                    padding: 32px;
+                    max-width: 500px;
+                    width: 90%;
+                    text-align: center;
+                    animation: slideUp 0.3s ease;
+                }
+                
+                .feedback-icon {
+                    font-size: 4em;
+                    margin-bottom: 16px;
+                    animation: bounce 0.6s ease;
+                }
+                
+                .feedback-title {
+                    color: #fff;
+                    font-size: 1.8em;
+                    font-weight: 700;
+                    margin-bottom: 12px;
+                }
+                
+                .feedback-text {
+                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 1.1em;
+                    margin-bottom: 24px;
+                    line-height: 1.6;
+                }
+                
+                .feedback-buttons {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                }
+                
+                .feedback-btn {
+                    padding: 12px 24px;
+                    border: none;
+                    border-radius: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 1em;
+                }
+                
+                .feedback-btn.positive {
+                    background: linear-gradient(135deg, #10b981, #059669);
+                    color: #fff;
+                }
+                
+                .feedback-btn.negative {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: #fff;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                }
+                
+                .feedback-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+                }
+                
+                @keyframes bounce {
+                    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                    40% { transform: translateY(-10px); }
+                    60% { transform: translateY(-5px); }
+                }
+                
+                /* Saved Outfits Section */
+                .saved-section {
+                    margin-top: 48px;
+                }
+                
+                .section-title {
+                    color: #fff;
+                    font-size: 2em;
+                    font-weight: 700;
+                    margin-bottom: 24px;
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                }
+                
+                .saved-outfits-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 24px;
+                }
+                
+                .saved-outfit-card {
+                    background: rgba(255, 255, 255, 0.04);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 16px;
+                    padding: 20px;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .saved-outfit-card:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    transform: translateY(-4px);
+                    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+                }
+                
+                .saved-outfit-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 16px;
+                }
+                
+                .saved-outfit-name {
+                    color: #fff;
+                    font-size: 1.2em;
+                    font-weight: 700;
+                }
+                
+                .saved-outfit-score {
+                    background: linear-gradient(135deg, #10b981, #3b82f6);
+                    padding: 6px 12px;
+                    border-radius: 12px;
+                    font-weight: 600;
+                    color: #fff;
+                    font-size: 0.85em;
+                }
+                
+                .saved-items-preview {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 8px;
+                    margin-bottom: 16px;
+                }
+                
+                .saved-item-mini {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 8px;
+                    padding: 8px;
+                    text-align: center;
+                    transition: all 0.3s ease;
+                }
+                
+                .saved-item-mini:hover {
+                    background: rgba(255, 255, 255, 0.1);
+                    transform: scale(1.05);
+                }
+                
+                .saved-item-emoji {
+                    font-size: 1.5em;
+                    margin-bottom: 4px;
+                }
+                
+                .saved-item-name {
+                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 0.75em;
+                    font-weight: 500;
+                }
+                
+                .saved-outfit-reason {
+                    background: rgba(124, 58, 237, 0.1);
+                    border: 1px solid rgba(124, 58, 237, 0.2);
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    margin-bottom: 16px;
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.85em;
+                    font-style: italic;
+                    line-height: 1.4;
+                }
+                
+                .saved-outfit-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .saved-outfit-date {
+                    color: rgba(255, 255, 255, 0.6);
+                    font-size: 0.8em;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                
+                .delete-saved-btn {
+                    background: rgba(239, 68, 68, 0.2);
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                    color: rgba(239, 68, 68, 0.8);
+                    padding: 6px 10px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 0.8em;
+                }
+                
+                .delete-saved-btn:hover {
+                    background: rgba(239, 68, 68, 0.3);
+                    color: #fff;
+                    transform: scale(1.05);
+                }
+                
+                /* Loading Animation */
+                .loading-spinner {
+                    display: none;
+                    text-align: center;
+                    padding: 48px;
+                }
+                
+                .loading-spinner.active {
+                    display: block;
+                }
+                
+                .spinner {
+                    width: 64px;
+                    height: 64px;
+                    border: 4px solid rgba(255, 255, 255, 0.2);
+                    border-top-color: #7c3aed;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 16px;
+                }
+                
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+                
+                /* Empty State */
+                .empty-state {
+                    text-align: center;
+                    padding: 80px 20px;
+                    color: rgba(255, 255, 255, 0.8);
+                }
+                
+                .empty-icon {
+                    font-size: 6em;
+                    margin-bottom: 20px;
+                    animation: bounce 2s infinite;
+                }
+                
+                @keyframes bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-20px); }
+                }
+                
+                /* Animations */
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                
+                @keyframes fadeInDown {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.02); }
+                }
+                
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .ai-stylist-content {
+                        padding: 16px;
+                    }
+                    .outfit-cards-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    .page-header-ai h1 {
+                        font-size: 2em;
+                    }
+                }
+            </style>
+
+            <div class="ai-engine-container">
+                <!-- Page Header -->
+                <div class="page-header-ai">
+                    <h1>🤖 AI Outfit Engine</h1>
+                    <p>Smart outfit suggestions based on your wardrobe, weather, and schedule</p>
+            </div>
+
+                <!-- Context Panel -->
+                <div class="context-panel">
+                    <div class="context-card">
+                        <div class="context-icon"><i class="fas fa-tshirt"></i></div>
+                        <div class="context-label">Wardrobe Items</div>
+                        <div class="context-value" id="contextItems">0</div>
+                    </div>
+                    <div class="context-card">
+                        <div class="context-icon" id="contextWeatherIcon">🌤️</div>
+                        <div class="context-label">Weather</div>
+                        <div class="context-value" id="contextWeather">24°C Clear</div>
+                        </div>
+                    <div class="context-card">
+                        <div class="context-icon">📅</div>
+                        <div class="context-label">Today's Event</div>
+                        <div class="context-value" id="contextEvent">Business Meeting</div>
+                        </div>
+                    <div class="context-card">
+                        <div class="context-icon">✨</div>
+                        <div class="context-label">AI Confidence</div>
+                        <div class="context-value" id="contextConfidence">95%</div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <div class="generate-section">
+                    <button class="generate-btn" id="generateOutfitsBtn" onclick="generateOutfits()">
+                        <i class="fas fa-magic"></i>
+                        Generate Smart Outfits
+                        </button>
+                    </div>
+
+                <!-- Loading Spinner -->
+                <div class="loading-spinner" id="loadingSpinner">
+                    <div class="spinner"></div>
+                    <p style="color: #fff; font-size: 1.2em;">AI is analyzing your wardrobe...</p>
+                </div>
+
+                <!-- Generated Outfits -->
+                <div id="generatedOutfitsContainer">
+                    <!-- Empty State -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">✨</div>
+                        <h2>No Outfits Generated Yet</h2>
+                        <p>Click the button above to let AI create perfect outfit combinations for you!</p>
+                    </div>
+                </div>
+
+                <!-- Feedback Modal -->
+                <div class="feedback-modal" id="feedbackModal">
+                    <div class="feedback-content">
+                        <div class="feedback-icon">🎉</div>
+                        <h3 class="feedback-title">Outfits Generated!</h3>
+                        <p class="feedback-text">How do you like these AI-generated outfit suggestions? Your feedback helps us improve!</p>
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn positive" onclick="submitFeedback('positive')">
+                                <i class="fas fa-thumbs-up"></i> Love It!
+                            </button>
+                            <button class="feedback-btn negative" onclick="submitFeedback('negative')">
+                                <i class="fas fa-thumbs-down"></i> Not Quite
+                            </button>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Saved Outfits Section -->
+            </div>
+
+            <script>
+                // AI Outfit Engine
+                let wardrobeItems = [];
+                let savedOutfits = [];
+                let currentWeather = { temp: 24, condition: 'Clear' };
+                let currentEvent = 'Business Meeting';
+
+                // Initialize immediately
+                wardrobeItems = userDB.loadUserData('wardrobeItems', []);
+                
+                // If no items found, load default wardrobe items
+                if (wardrobeItems.length === 0) {
+                    console.log('⚠️ No wardrobe items found, loading defaults...');
+                    wardrobeItems = [
+                        {
+                            id: 1,
+                            name: 'yellow full sleve t-shirt',
+                            category: 'topwear',
+                            color: '#d5af01',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/yellow_tshirt.jpg'
+                        },
+                        {
+                            id: 2,
+                            name: 'black t-shirt',
+                            category: 'topwear',
+                            color: 'black',
+                            season: 'summer',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/black_tshirt.jpg'
+                        },
+                        {
+                            id: 3,
+                            name: 'strip line full sleve t-shirt',
+                            category: 'topwear',
+                            color: '#546056',
+                            season: 'winter',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/strip_tshirt.jpg'
+                        },
+                        {
+                            id: 4,
+                            name: 'checked black and red shirt',
+                            category: 'topwear',
+                            color: 'red',
+                            season: 'all-season',
+                            occasion: ['casual', 'formal'],
+                            favorite: false,
+                            emoji: '👔',
+                            image: 'assets/uploads/checked_shirt.jpg'
+                        },
+                        {
+                            id: 5,
+                            name: 'blackish white jeans',
+                            category: 'bottomwear',
+                            color: 'white',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/blackish_white_jeans.jpg'
+                        },
+                        {
+                            id: 6,
+                            name: 'navy blue jeans',
+                            category: 'bottomwear',
+                            color: '#2a3e61',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/navy_jeans.jpg'
+                        },
+                        {
+                            id: 7,
+                            name: 'polo t-shirt',
+                            category: 'topwear',
+                            color: '#b7a092',
+                            season: 'summer',
+                            occasion: ['casual', 'sport'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/polo_tshirt.jpg'
+                        },
+                        {
+                            id: 8,
+                            name: 'red hoddie',
+                            category: 'topwear',
+                            color: 'red',
+                            season: 'winter',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '🧥',
+                            image: 'assets/uploads/red_hoodie.jpg'
+                        },
+                        {
+                            id: 9,
+                            name: 'striped full sleve t-shirt',
+                            category: 'topwear',
+                            color: '#7a6337',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/striped_tshirt.jpg'
+                        },
+                        {
+                            id: 10,
+                            name: 'white full sleve t-shirt',
+                            category: 'topwear',
+                            color: 'white',
+                            season: 'winter',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/white_tshirt.jpg'
+                        },
+                        {
+                            id: 11,
+                            name: 'printed shirt',
+                            category: 'topwear',
+                            color: '#917759',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👔',
+                            image: 'assets/uploads/printed_shirt.jpg'
+                        },
+                        {
+                            id: 12,
+                            name: 'light blue shirt',
+                            category: 'topwear',
+                            color: 'blue',
+                            season: 'all-season',
+                            occasion: ['casual', 'formal'],
+                            favorite: false,
+                            emoji: '👔',
+                            image: 'assets/uploads/light_blue_shirt.jpg'
+                        },
+                        {
+                            id: 13,
+                            name: 'half sleve check shirt',
+                            category: 'topwear',
+                            color: '#817f80',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👔',
+                            image: 'assets/uploads/check_shirt.jpg'
+                        },
+                        {
+                            id: 14,
+                            name: 'macroon shirt',
+                            category: 'topwear',
+                            color: '#580c20',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👔',
+                            image: 'assets/uploads/maroon_shirt.jpg'
+                        },
+                        {
+                            id: 15,
+                            name: 'check pattern pant',
+                            category: 'bottomwear',
+                            color: 'white',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/check_pant.jpg'
+                        },
+                        {
+                            id: 16,
+                            name: 'black trackpant',
+                            category: 'bottomwear',
+                            color: 'black',
+                            season: 'winter',
+                            occasion: ['casual', 'sport'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/black_trackpant.jpg'
+                        },
+                        {
+                            id: 17,
+                            name: 'bottle green cargo',
+                            category: 'bottomwear',
+                            color: '#0e3538',
+                            season: 'summer',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/green_cargo.jpg'
+                        },
+                        {
+                            id: 18,
+                            name: 'light blue baggy jeans',
+                            category: 'bottomwear',
+                            color: '#0e3538',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/light_blue_jeans.jpg'
+                        },
+                        {
+                            id: 19,
+                            name: 'white kurta',
+                            category: 'topwear',
+                            color: 'white',
+                            season: 'summer',
+                            occasion: ['casual', 'traditional'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/white_kurta.jpg'
+                        },
+                        {
+                            id: 20,
+                            name: 'black jeans',
+                            category: 'bottomwear',
+                            color: 'black',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/black_jeans.jpg'
+                        },
+                        {
+                            id: 21,
+                            name: 'light green full sleve t-shirt',
+                            category: 'topwear',
+                            color: '#60a4a3',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👕',
+                            image: 'assets/uploads/light_green_tshirt.jpg'
+                        },
+                        {
+                            id: 22,
+                            name: 'white pant',
+                            category: 'bottomwear',
+                            color: 'white',
+                            season: 'all-season',
+                            occasion: ['casual', 'formal'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/white_pant.jpg'
+                        },
+                        {
+                            id: 23,
+                            name: 'white pajamas',
+                            category: 'bottomwear',
+                            color: 'white',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👖',
+                            image: 'assets/uploads/white_pajamas.jpg'
+                        },
+                        {
+                            id: 24,
+                            name: 'chelsea boots',
+                            category: 'footwear',
+                            color: 'black',
+                            season: 'all-season',
+                            occasion: ['casual', 'formal'],
+                            favorite: false,
+                            emoji: '👢',
+                            image: 'assets/uploads/chelsea_boots.jpg'
+                        },
+                        {
+                            id: 25,
+                            name: 'navy blue comfortable shoe',
+                            category: 'footwear',
+                            color: 'blue',
+                            season: 'summer',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👟',
+                            image: 'assets/uploads/navy_shoes.jpg'
+                        },
+                        {
+                            id: 26,
+                            name: 'canvas',
+                            category: 'footwear',
+                            color: 'black',
+                            season: 'all-season',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👟',
+                            image: 'assets/uploads/canvas_shoes.jpg'
+                        },
+                        {
+                            id: 27,
+                            name: 'blue jordan',
+                            category: 'footwear',
+                            color: 'blue',
+                            season: 'all-season',
+                            occasion: ['casual', 'sport'],
+                            favorite: false,
+                            emoji: '👟',
+                            image: 'assets/uploads/blue_jordan.jpg'
+                        },
+                        {
+                            id: 28,
+                            name: 'sandal',
+                            category: 'footwear',
+                            color: 'blue',
+                            season: 'monsoon',
+                            occasion: ['casual'],
+                            favorite: false,
+                            emoji: '👡',
+                            image: 'assets/uploads/sandal.jpg'
+                        }
+                    ];
+                    
+                    // Save the default wardrobe items
+                    userDB.saveUserData('wardrobeItems', wardrobeItems);
+                    console.log('✅ AI Stylist loaded default wardrobe items:', wardrobeItems.length);
+                }
+                
+                savedOutfits = userDB.loadUserData('savedOutfits', []);
+                currentWeather = { temp: 24, condition: 'Clear' };
+                
+                // Initialize when DOM is ready
+                document.addEventListener('DOMContentLoaded', function() {
+                    updateContext();
+                });
+
+                // Load Wardrobe Data
+                function loadWardrobeData() {
+                    wardrobeItems = userDB.loadUserData('wardrobeItems', []);
+                }
+
+                // Fetch Real Weather Data from Backend
+                // Mock weather data instead of API call
+                function fetchRealWeather() {
+                    console.log('Using mock weather data');
+                    currentWeather = { temp: 24, condition: 'Clear' };
+                            updateContext();
+                }
+                
+                // Update Context Display
+                function updateContext() {
+                    document.getElementById('contextItems').textContent = wardrobeItems.length;
+                    document.getElementById('contextWeather').textContent = `${currentWeather.temp}°C ${currentWeather.condition}`;
+                    document.getElementById('contextEvent').textContent = currentEvent;
+                    
+                    const icons = { 'Clear': '☀️', 'Clouds': '☁️', 'Rain': '🌧️', 'Snow': '❄️' };
+                    document.getElementById('contextWeatherIcon').textContent = icons[currentWeather.condition] || '🌤️';
+                }
+
+                // AI Outfit Generation - Simple Working Version
+                function generateOutfits() {
+                    console.log('🚀 Generate outfits button clicked!');
+                    console.log('📊 Current wardrobe items:', wardrobeItems.length);
+                    
+                    const container = document.getElementById('generatedOutfitsContainer');
+                    const loading = document.getElementById('loadingSpinner');
+                    const emptyState = document.getElementById('emptyState');
+                    
+                    // Check if user has wardrobe items
+                    if (wardrobeItems.length === 0) {
+                        console.log('❌ No wardrobe items found');
+                        if (emptyState) {
+                            emptyState.style.display = 'block';
+                            emptyState.innerHTML = `
+                                <div class="empty-state-content">
+                                    <i class="fas fa-tshirt"></i>
+                                    <h3>No Items in Wardrobe</h3>
+                                    <p>Add some clothes to your wardrobe first to get AI outfit suggestions!</p>
+                                    <a href="wardrobe.html" class="btn-primary">Go to Wardrobe</a>
+                                </div>
+                            `;
+                        }
+                        if (loading) loading.classList.remove('active');
+                        return;
+                    }
+                    
+                    console.log('✅ Wardrobe items found, generating outfits...');
+                    
+                    // Show loading
+                    if (emptyState) emptyState.style.display = 'none';
+                    if (container) container.innerHTML = '';
+                    if (loading) loading.classList.add('active');
+                    
+                    // Generate outfits from user's actual wardrobe
+                    setTimeout(() => {
+                        if (loading) loading.classList.remove('active');
+                        
+                        // Generate outfits from user's wardrobe
+                        const outfits = generateOutfitsFromWardrobe();
+                        
+                        if (outfits.length === 0) {
+                            if (emptyState) {
+                                emptyState.style.display = 'block';
+                                emptyState.innerHTML = `
+                                    <div class="empty-state-content">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <h3>Not Enough Items</h3>
+                                        <p>You need at least one top, bottom, and footwear to generate outfits!</p>
+                                        <a href="wardrobe.html" class="btn-primary">Add More Items</a>
+                                    </div>
+                                `;
+                            }
+                            return;
+                        }
+                        
+                        // Display generated outfits
+                        displayGeneratedOutfits(outfits, container);
+                    }, 1500);
+                }
+
+                // Generate outfits from user's actual wardrobe
+                // TRAINED OUTFIT INTELLIGENCE - Based on Real Fashion Data
+                const outfitIntelligence = {
+                    // Color combination rules from training data
+                    colorRules: {
+                        excellent: [
+                            // High contrast combinations (Rating 5)
+                            { top: 'yellow', bottom: 'navy', footwear: 'black', reason: 'Bright + dark contrast, clean and bold' },
+                            { top: 'black', bottom: 'light-blue', footwear: 'blue', reason: 'Classic street style. Neutral + light wash' },
+                            { top: 'white', bottom: 'black', footwear: 'black', reason: 'Minimal monochrome, timeless' },
+                            { top: 'light-blue', bottom: 'white', footwear: 'black', reason: 'Bright, clean, classy' },
+                            { top: 'maroon', bottom: 'navy', footwear: 'black', reason: 'Deep color palette, elegant combo' },
+                            
+                            // Pattern + solid combinations
+                            { top: 'checked', bottom: 'black', footwear: 'black', reason: 'Bold pattern with dark base = perfect balance' },
+                            { top: 'printed', bottom: 'black', footwear: 'black', reason: 'Patterned top, solid bottom = visual focus up top' },
+                            { top: 'striped', bottom: 'black', footwear: 'black', reason: 'Patterned top + dark jeans = balanced' },
+                            
+                            // Seasonal perfect matches
+                            { top: 'light-green', bottom: 'white', footwear: 'sandal', season: 'summer', reason: 'Cool and airy, perfect summer tones' },
+                            { top: 'white', bottom: 'white', footwear: 'sandal', season: 'summer', reason: 'Classic ethnic all-white look' }
+                        ],
+                        
+                        good: [
+                            // Solid combinations (Rating 4)
+                            { top: 'light-blue', bottom: 'blackish-white', footwear: 'black', reason: 'Classy casual, light + neutral balance' },
+                            { top: 'polo', bottom: 'white', footwear: 'black', reason: 'Earthy + bright, smooth neutral pairing' },
+                            { top: 'white', bottom: 'light-blue', footwear: 'blue', reason: 'Clean casual' },
+                            { top: 'navy', bottom: 'yellow', footwear: 'black', reason: 'Trendy color pop combination' }
+                        ],
+                        
+                        avoid: [
+                            // Bad combinations (Rating 1-2)
+                            { top: 'red', bottom: 'yellow', reason: 'Too many bold warm tones' },
+                            { top: 'printed', bottom: 'striped', reason: 'Pattern clash risk' },
+                            { top: 'light-green', bottom: 'light-blue', reason: 'Very soft-on-soft combo, might look washed out' },
+                            { top: 'white', bottom: 'white', footwear: 'white', reason: 'Too monochrome, no depth' }
+                        ]
+                    },
+                    
+                    // Seasonal outfit rules
+                    seasonalRules: {
+                        summer: {
+                            colors: ['white', 'light-blue', 'yellow', 'light-green'],
+                            footwear: ['sandal', 'canvas', 'blue-jordan'],
+                            avoid: ['maroon', 'black-heavy'],
+                            notes: 'Light colors, breathable fabrics, open footwear'
+                        },
+                        winter: {
+                            colors: ['black', 'navy', 'maroon', 'dark-colors'],
+                            footwear: ['chelsea-boots', 'canvas'],
+                            layers: ['hoodie', 'outerwear'],
+                            notes: 'Darker colors, layering, closed footwear'
+                        },
+                        'all-season': {
+                            colors: ['white', 'black', 'navy', 'neutral'],
+                            footwear: ['chelsea-boots', 'canvas'],
+                            notes: 'Versatile colors that work year-round'
+                        }
+                    },
+                    
+                    // Pattern combination rules
+                    patternRules: {
+                        safe: [
+                            { top: 'patterned', bottom: 'solid', reason: 'Pattern + solid = balanced' },
+                            { top: 'solid', bottom: 'patterned', reason: 'Solid + pattern = safe' }
+                        ],
+                        risky: [
+                            { top: 'patterned', bottom: 'patterned', reason: 'Pattern on pattern—can work but tricky' },
+                            { top: 'striped', bottom: 'checked', reason: 'Pattern clash risk' }
+                        ]
+                    },
+                    
+                    // Formality matching rules
+                    formalityRules: {
+                        casual: ['t-shirt', 'canvas', 'sandal', 'baggy-jeans'],
+                        smart_casual: ['polo', 'chelsea-boots', 'jeans'],
+                        formal: ['shirt', 'chelsea-boots', 'dress-pants'],
+                        ethnic: ['kurta', 'pajamas', 'sandal']
+                    }
+                };
+
+                // Enhanced AI Outfit Generation with Real Clothing Data
+                function generateOutfitsFromWardrobe() {
+                    console.log('🎯 Starting outfit generation from wardrobe...');
+                    console.log('📊 Total wardrobe items:', wardrobeItems.length);
+                    
+                    const tops = wardrobeItems.filter(item => item.category === 'topwear');
+                    const bottoms = wardrobeItems.filter(item => item.category === 'bottomwear');
+                    const shoes = wardrobeItems.filter(item => item.category === 'footwear');
+                    const accessories = wardrobeItems.filter(item => item.category === 'accessories');
+                    
+                    console.log('👕 Tops found:', tops.length);
+                    console.log('👖 Bottoms found:', bottoms.length);
+                    console.log('👟 Shoes found:', shoes.length);
+                    console.log('💍 Accessories found:', accessories.length);
+                    
+                    if (tops.length === 0 || bottoms.length === 0 || shoes.length === 0) {
+                        console.log('❌ Not enough items to generate outfits');
+                        return [];
+                    }
+                    
+                    const outfits = [];
+                    const maxOutfits = Math.min(3, tops.length, bottoms.length, shoes.length);
+                    
+                    // Use actual clothing data from training
+                    const trainedOutfits = getTrainedOutfitCombinations();
+                    
+                    // Track used combinations to avoid duplicates
+                    const usedCombinations = new Set();
+                    
+                    for (let i = 0; i < maxOutfits; i++) {
+                        const outfit = {
+                            id: Date.now() + i,
+                            name: getOutfitName(i),
+                            items: [],
+                            score: 0,
+                            reason: '',
+                            intelligence: 'trained'
+                        };
+                        
+                        // Try to match with trained combinations first, but ensure variety
+                        const trainedOutfit = findMatchingTrainedOutfit(tops, bottoms, shoes, trainedOutfits, i, usedCombinations);
+                        
+                        if (trainedOutfit) {
+                            outfit.items = trainedOutfit.items;
+                            outfit.score = trainedOutfit.score;
+                            outfit.reason = trainedOutfit.reason;
+                            
+                            // Mark this combination as used
+                            const combinationKey = trainedOutfit.items.map(item => item.name).join('|');
+                            usedCombinations.add(combinationKey);
+                        } else {
+                            // Fallback to intelligent selection with variety
+                            const top = selectIntelligentItemWithVariety(tops, currentEvent, currentWeather, i, 'top', usedCombinations);
+                            const bottom = selectIntelligentItemWithVariety(bottoms, currentEvent, currentWeather, i, 'bottom', usedCombinations);
+                            const shoe = selectIntelligentItemWithVariety(shoes, currentEvent, currentWeather, i, 'footwear', usedCombinations);
+                            
+                            outfit.items = [top, bottom, shoe];
+                            
+                            // Add accessory if available and appropriate
+                            if (accessories.length > 0 && Math.random() > 0.5) {
+                                const accessory = accessories[i % accessories.length];
+                                outfit.items.push(accessory);
+                            }
+                            
+                            // Calculate intelligent score and reason
+                            const analysis = analyzeOutfitIntelligence(outfit.items, currentEvent, currentWeather);
+                            outfit.score = analysis.score;
+                            outfit.reason = analysis.reason;
+                            
+                            // Mark this combination as used
+                            const combinationKey = outfit.items.map(item => item.name).join('|');
+                            usedCombinations.add(combinationKey);
+                        }
+                        
+                        outfits.push(outfit);
+                    }
+                    
+                    // Sort outfits by intelligence score
+                    return outfits.sort((a, b) => b.score - a.score);
+                }
+
+                // Get trained outfit combinations based on your data
+                function getTrainedOutfitCombinations() {
+                    return [
+                        {
+                            name: "Summer Contrast",
+                            items: [
+                                { name: "Yellow full sleeve t-shirt", category: "topwear", color: "yellow" },
+                                { name: "Navy blue jeans", category: "bottomwear", color: "navy" },
+                                { name: "Black canvas", category: "footwear", color: "black" }
+                            ],
+                            score: 95,
+                            reason: "Bright + dark contrast, clean and bold",
+                            season: "summer"
+                        },
+                        {
+                            name: "Classic Street",
+                            items: [
+                                { name: "Black t-shirt", category: "topwear", color: "black" },
+                                { name: "Light blue baggy jeans", category: "bottomwear", color: "light-blue" },
+                                { name: "Blue Jordan", category: "footwear", color: "blue" }
+                            ],
+                            score: 95,
+                            reason: "Classic street style. Neutral + light wash",
+                            season: "summer"
+                        },
+                        {
+                            name: "Pattern Balance",
+                            items: [
+                                { name: "Checked black and red shirt", category: "topwear", color: "checked" },
+                                { name: "Black jeans", category: "bottomwear", color: "black" },
+                                { name: "Chelsea boots", category: "footwear", color: "black" }
+                            ],
+                            score: 95,
+                            reason: "Bold pattern with dark base = perfect balance",
+                            season: "all-season"
+                        },
+                        {
+                            name: "Elegant Winter",
+                            items: [
+                                { name: "Maroon shirt", category: "topwear", color: "maroon" },
+                                { name: "Navy blue jeans", category: "bottomwear", color: "navy" },
+                                { name: "Chelsea boots", category: "footwear", color: "black" }
+                            ],
+                            score: 95,
+                            reason: "Deep color palette, elegant combo",
+                            season: "winter"
+                        },
+                        {
+                            name: "Minimal Monochrome",
+                            items: [
+                                { name: "White full sleeve t-shirt", category: "topwear", color: "white" },
+                                { name: "Black jeans", category: "bottomwear", color: "black" },
+                                { name: "Chelsea boots", category: "footwear", color: "black" }
+                            ],
+                            score: 95,
+                            reason: "Minimal monochrome, timeless",
+                            season: "winter"
+                        },
+                        {
+                            name: "Clean Classy",
+                            items: [
+                                { name: "Light blue shirt", category: "topwear", color: "light-blue" },
+                                { name: "White pant", category: "bottomwear", color: "white" },
+                                { name: "Canvas", category: "footwear", color: "black" }
+                            ],
+                            score: 95,
+                            reason: "Bright, clean, classy",
+                            season: "summer"
+                        }
+                    ];
+                }
+
+                // Find matching trained outfit based on available items
+                function findMatchingTrainedOutfit(tops, bottoms, shoes, trainedOutfits, index, usedCombinations) {
+                    const currentSeason = getCurrentSeason(currentWeather);
+                    
+                    // Filter trained outfits by season
+                    const seasonalOutfits = trainedOutfits.filter(outfit => 
+                        outfit.season === currentSeason || outfit.season === 'all-season'
+                    );
+                    
+                    if (seasonalOutfits.length === 0) return null;
+                    
+                    // Try different trained outfits to find one that hasn't been used
+                    for (let i = 0; i < seasonalOutfits.length; i++) {
+                        const trainedOutfit = seasonalOutfits[(index + i) % seasonalOutfits.length];
+                        
+                        // Check if we have similar items in wardrobe
+                        const matchingItems = [];
+                        
+                        trainedOutfit.items.forEach(trainedItem => {
+                            const categoryItems = trainedItem.category === 'topwear' ? tops :
+                                               trainedItem.category === 'bottomwear' ? bottoms :
+                                               trainedItem.category === 'footwear' ? shoes : [];
+                            
+                            // Find best match based on color or name similarity
+                            const match = findBestItemMatch(trainedItem, categoryItems, index);
+                            if (match) {
+                                matchingItems.push(match);
+                            }
+                        });
+                        
+                        // If we found enough matching items, check if this combination is unique
+                        if (matchingItems.length >= 3) {
+                            const combinationKey = matchingItems.map(item => item.name).join('|');
+                            if (!usedCombinations.has(combinationKey)) {
+                                return {
+                                    items: matchingItems.slice(0, 3),
+                                    score: trainedOutfit.score,
+                                    reason: trainedOutfit.reason
+                                };
+                            }
+                        }
+                    }
+                    
+                    return null;
+                }
+
+                // Find best item match based on color or name similarity
+                function findBestItemMatch(trainedItem, availableItems, index) {
+                    if (availableItems.length === 0) return null;
+                    
+                    // First try to match by color
+                    const colorMatch = availableItems.find(item => 
+                        item.color && item.color.toLowerCase().includes(trainedItem.color.toLowerCase())
+                    );
+                    if (colorMatch) return colorMatch;
+                    
+                    // Then try to match by name similarity
+                    const nameMatch = availableItems.find(item => 
+                        item.name.toLowerCase().includes(trainedItem.name.split(' ')[0].toLowerCase()) ||
+                        trainedItem.name.toLowerCase().includes(item.name.split(' ')[0].toLowerCase())
+                    );
+                    if (nameMatch) return nameMatch;
+                    
+                    // Use different randomization for each outfit to ensure variety
+                    const randomIndex = (index * 7 + Math.floor(Math.random() * 100)) % availableItems.length;
+                    return availableItems[randomIndex];
+                }
+
+                // Intelligent item selection with variety to avoid duplicates
+                function selectIntelligentItemWithVariety(items, event, weather, index, type, usedCombinations) {
+                    if (items.length === 0) return null;
+                    
+                    // Get current season
+                    const currentSeason = getCurrentSeason(weather);
+                    
+                    // Filter items by season appropriateness
+                    const seasonalItems = items.filter(item => {
+                        const itemSeason = getItemSeason(item, weather);
+                        return itemSeason === currentSeason || itemSeason === 'all-season';
+                    });
+                    
+                    // Use seasonal items if available, otherwise use all items
+                    const candidateItems = seasonalItems.length > 0 ? seasonalItems : items;
+                    
+                    // Try to find an item that hasn't been used in this generation
+                    for (let i = 0; i < candidateItems.length; i++) {
+                        const item = candidateItems[(index + i) % candidateItems.length];
+                        const itemKey = `${type}:${item.name}`;
+                        
+                        // Check if this specific item has been used
+                        let itemUsed = false;
+                        for (const combination of usedCombinations) {
+                            if (combination.includes(item.name)) {
+                                itemUsed = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!itemUsed) {
+                            return item;
+                        }
+                    }
+                    
+                    // If all items have been used, return a random one
+                    return candidateItems[index % candidateItems.length];
+                }
+
+                // Intelligent top selection
+                function selectIntelligentTop(tops, event, weather, index) {
+                    const currentSeason = getCurrentSeason(weather);
+                    
+                    // Prioritize based on training data
+                    const priorities = {
+                        summer: ['white', 'light-blue', 'yellow', 'light-green'],
+                        winter: ['black', 'navy', 'maroon'],
+                        'all-season': ['white', 'black', 'navy']
+                    };
+                    
+                    const seasonColors = priorities[currentSeason] || priorities['all-season'];
+                    
+                    // Find items that match seasonal color preferences
+                    for (const color of seasonColors) {
+                        const matchingItems = tops.filter(top => 
+                            top.color && top.color.toLowerCase().includes(color.toLowerCase())
+                        );
+                        if (matchingItems.length > 0) {
+                            return matchingItems[index % matchingItems.length];
+                        }
+                    }
+                    
+                    // Fallback to any available top
+                    return tops[index % tops.length];
+                }
+
+                // Intelligent bottom selection
+                function selectIntelligentBottom(bottoms, event, weather, index) {
+                    const currentSeason = getCurrentSeason(weather);
+                    
+                    // Based on training data - navy and black are versatile
+                    const versatileColors = ['navy', 'black', 'white'];
+                    
+                    for (const color of versatileColors) {
+                        const matchingItems = bottoms.filter(bottom => 
+                            bottom.color && bottom.color.toLowerCase().includes(color.toLowerCase())
+                        );
+                        if (matchingItems.length > 0) {
+                            return matchingItems[index % matchingItems.length];
+                        }
+                    }
+                    
+                    return bottoms[index % bottoms.length];
+                }
+
+                // Intelligent footwear selection
+                function selectIntelligentFootwear(shoes, event, weather, index) {
+                    const currentSeason = getCurrentSeason(weather);
+                    
+                    // Based on training data
+                    const seasonalFootwear = {
+                        summer: ['sandal', 'canvas', 'blue-jordan'],
+                        winter: ['chelsea-boots', 'canvas'],
+                        'all-season': ['chelsea-boots', 'canvas']
+                    };
+                    
+                    const preferredTypes = seasonalFootwear[currentSeason] || seasonalFootwear['all-season'];
+                    
+                    // Find shoes that match seasonal preferences
+                    for (const type of preferredTypes) {
+                        const matchingItems = shoes.filter(shoe => 
+                            shoe.name && shoe.name.toLowerCase().includes(type.toLowerCase())
+                        );
+                        if (matchingItems.length > 0) {
+                            return matchingItems[index % matchingItems.length];
+                        }
+                    }
+                    
+                    return shoes[index % shoes.length];
+                }
+
+                // Analyze outfit intelligence based on training data
+                function analyzeOutfitIntelligence(items, event, weather) {
+                    let score = 50; // Base score
+                    let reasons = [];
+                    
+                    const top = items[0];
+                    const bottom = items[1];
+                    const shoe = items[2];
+                    
+                    if (!top || !bottom || !shoe) {
+                        return { score: 30, reason: 'Incomplete outfit - missing essential items' };
+                    }
+                    
+                    // Color analysis based on training data
+                    const colorScore = analyzeColorCombination(top, bottom, shoe);
+                    score += colorScore.points;
+                    if (colorScore.reason) reasons.push(colorScore.reason);
+                    
+                    // Seasonal analysis
+                    const seasonalScore = analyzeSeasonalAppropriateness(items, weather);
+                    score += seasonalScore.points;
+                    if (seasonalScore.reason) reasons.push(seasonalScore.reason);
+                    
+                    // Pattern analysis
+                    const patternScore = analyzePatternCombination(top, bottom);
+                    score += patternScore.points;
+                    if (patternScore.reason) reasons.push(patternScore.reason);
+                    
+                    // Formality analysis
+                    const formalityScore = analyzeFormalityMatch(items, event);
+                    score += formalityScore.points;
+                    if (formalityScore.reason) reasons.push(formalityScore.reason);
+                    
+                    // Ensure score is between 0-100
+                    score = Math.max(0, Math.min(100, score));
+                    
+                    return {
+                        score: Math.round(score),
+                        reason: reasons.join(' • ') || 'Well-balanced outfit combination'
+                    };
+                }
+
+                // Analyze color combinations based on training data
+                function analyzeColorCombination(top, bottom, shoe) {
+                    const topColor = (top.color || '').toLowerCase();
+                    const bottomColor = (bottom.color || '').toLowerCase();
+                    const shoeColor = (shoe.color || '').toLowerCase();
+                    
+                    // Check for excellent combinations from training data
+                    const excellentCombos = outfitIntelligence.colorRules.excellent;
+                    for (const combo of excellentCombos) {
+                        if (matchesCombo(topColor, bottomColor, shoeColor, combo)) {
+                            return { points: 25, reason: combo.reason };
+                        }
+                    }
+                    
+                    // Check for good combinations
+                    const goodCombos = outfitIntelligence.colorRules.good;
+                    for (const combo of goodCombos) {
+                        if (matchesCombo(topColor, bottomColor, shoeColor, combo)) {
+                            return { points: 15, reason: combo.reason };
+                        }
+                    }
+                    
+                    // Check for bad combinations
+                    const badCombos = outfitIntelligence.colorRules.avoid;
+                    for (const combo of badCombos) {
+                        if (matchesCombo(topColor, bottomColor, shoeColor, combo)) {
+                            return { points: -20, reason: `Avoid: ${combo.reason}` };
+                        }
+                    }
+                    
+                    // Neutral score for unknown combinations
+                    return { points: 5, reason: 'Safe color combination' };
+                }
+
+                // Helper function to check if colors match a combination
+                function matchesCombo(topColor, bottomColor, shoeColor, combo) {
+                    const topMatch = !combo.top || topColor.includes(combo.top);
+                    const bottomMatch = !combo.bottom || bottomColor.includes(combo.bottom);
+                    const shoeMatch = !combo.footwear || shoeColor.includes(combo.footwear);
+                    
+                    return topMatch && bottomMatch && shoeMatch;
+                }
+
+                // Analyze seasonal appropriateness
+                function analyzeSeasonalAppropriateness(items, weather) {
+                    const currentSeason = getCurrentSeason(weather);
+                    let score = 0;
+                    let reasons = [];
+                    
+                    items.forEach(item => {
+                        const itemSeason = getItemSeason(item, weather);
+                        if (itemSeason === currentSeason || itemSeason === 'all-season') {
+                            score += 5;
+                        } else {
+                            score -= 10;
+                            reasons.push(`${item.name} not ideal for ${currentSeason}`);
+                        }
+                    });
+                    
+                    return {
+                        points: score,
+                        reason: reasons.length > 0 ? reasons.join(', ') : `Perfect for ${currentSeason} weather`
+                    };
+                }
+
+                // Analyze pattern combinations
+                function analyzePatternCombination(top, bottom) {
+                    const topPattern = hasPattern(top.name);
+                    const bottomPattern = hasPattern(bottom.name);
+                    
+                    if (topPattern && bottomPattern) {
+                        return { points: -15, reason: 'Pattern on pattern—can work but tricky' };
+                    } else if (topPattern || bottomPattern) {
+                        return { points: 10, reason: 'Pattern + solid = balanced' };
+                    } else {
+                        return { points: 5, reason: 'Clean solid combination' };
+                    }
+                }
+
+                // Analyze formality match
+                function analyzeFormalityMatch(items, event) {
+                    const eventFormality = getEventFormality(event);
+                    let formalityScore = 0;
+                    
+                    items.forEach(item => {
+                        const itemFormality = getItemFormality(item);
+                        if (itemFormality === eventFormality) {
+                            formalityScore += 8;
+                        } else if (isCompatibleFormality(itemFormality, eventFormality)) {
+                            formalityScore += 3;
+                        } else {
+                            formalityScore -= 5;
+                        }
+                    });
+                    
+                    return {
+                        points: formalityScore,
+                        reason: `Appropriate for ${eventFormality} occasion`
+                    };
+                }
+
+                // Helper functions
+                function getCurrentSeason(weather) {
+                    if (!weather) return 'all-season';
+                    
+                    const temp = weather.temperature || 20;
+                    if (temp > 25) return 'summer';
+                    if (temp < 15) return 'winter';
+                    return 'all-season';
+                }
+
+                function getItemSeason(item, weather) {
+                    // This would be enhanced with actual item data
+                    return 'all-season';
+                }
+
+                function hasPattern(itemName) {
+                    const patterns = ['check', 'striped', 'printed', 'pattern'];
+                    return patterns.some(pattern => 
+                        itemName.toLowerCase().includes(pattern)
+                    );
+                }
+
+                function getEventFormality(event) {
+                    if (!event) return 'casual';
+                    
+                    const formalEvents = ['work', 'meeting', 'interview', 'formal'];
+                    const casualEvents = ['casual', 'hangout', 'relaxed'];
+                    
+                    if (formalEvents.some(e => event.toLowerCase().includes(e))) {
+                        return 'formal';
+                    } else if (casualEvents.some(e => event.toLowerCase().includes(e))) {
+                        return 'casual';
+                    }
+                    
+                    return 'smart-casual';
+                }
+
+                function getItemFormality(item) {
+                    const formalItems = ['shirt', 'dress', 'suit', 'blazer'];
+                    const casualItems = ['t-shirt', 'hoodie', 'sweatshirt', 'trackpant'];
+                    
+                    if (formalItems.some(f => item.name.toLowerCase().includes(f))) {
+                        return 'formal';
+                    } else if (casualItems.some(c => item.name.toLowerCase().includes(c))) {
+                        return 'casual';
+                    }
+                    
+                    return 'smart-casual';
+                }
+
+                function isCompatibleFormality(itemFormality, eventFormality) {
+                    const compatibility = {
+                        'casual': ['smart-casual'],
+                        'smart-casual': ['casual', 'formal'],
+                        'formal': ['smart-casual']
+                    };
+                    
+                    return compatibility[itemFormality]?.includes(eventFormality) || false;
+                }
+
+                // Display generated outfits
+                function displayGeneratedOutfits(outfits, container) {
+                    if (!container) return;
+                    
+                    let outfitsHTML = '<div class="outfit-cards-grid">';
+                    
+                    outfits.forEach(outfit => {
+                        outfitsHTML += `
+                            <div class="outfit-card" data-outfit-id="${outfit.id}">
+                                <div class="outfit-header">
+                                    <div class="outfit-title">
+                                        <i class="fas fa-magic"></i>
+                                        ${outfit.name}
+                                    </div>
+                                    <div class="outfit-score">${outfit.score}%</div>
+                                </div>
+                                
+                                <div class="outfit-items">
+                        `;
+                        
+                        outfit.items.forEach(item => {
+                            // Get appropriate icon based on category if no image
+                            const getCategoryIcon = (category) => {
+                                const icons = {
+                                    'topwear': 'fas fa-tshirt',
+                                    'bottomwear': 'fas fa-user',
+                                    'footwear': 'fas fa-shoe-prints',
+                                    'accessories': 'fas fa-gem',
+                                    'outerwear': 'fas fa-vest',
+                                    'dresses': 'fas fa-female'
+                                };
+                                return icons[category] || 'fas fa-tshirt';
+                            };
+                            
+                            const itemIcon = item.image ? 
+                                `<img src="${item.image}" alt="${item.name}" class="item-image">` : 
+                                `<div class="item-emoji"><i class="${getCategoryIcon(item.category)}"></i></div>`;
+                            
+                            outfitsHTML += `
+                                <div class="outfit-item">
+                                    ${itemIcon}
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-category">${item.category}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        outfitsHTML += `
+                                </div>
+                                
+                                <div class="outfit-reason">
+                                    <h4><i class="fas fa-lightbulb"></i> Why This Works</h4>
+                                    <p>${outfit.reason}</p>
+                                </div>
+                                
+                                <div class="outfit-actions">
+                                    <button class="btn-secondary" onclick="saveOutfit(${outfit.id})">
+                                        <i class="fas fa-heart"></i> Save
+                                    </button>
+                                    <button class="btn-primary" onclick="regenerateSpecificOutfit(${outfit.id})">
+                                        <i class="fas fa-sync"></i> Regenerate
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    outfitsHTML += '</div>';
+                    container.innerHTML = outfitsHTML;
+                }
+
+                // Helper functions
+                function getOutfitName(index) {
+                    const names = ['Smart Casual', 'Professional Look', 'Weekend Style', 'Date Night', 'Business Meeting'];
+                    return names[index % names.length];
+                }
+
+                function selectSmartItem(items, event, weather, index) {
+                    if (items.length === 0) return null;
+                    
+                    // Simple selection logic - can be enhanced
+                    return items[index % items.length];
+                }
+
+                function generateOutfitReason(items, event, weather) {
+                    const reasons = [
+                        `Perfect for ${event || 'casual occasions'}. Great color coordination and style balance.`,
+                        `Ideal for ${weather.condition.toLowerCase()} weather. Comfortable and stylish combination.`,
+                        `Excellent choice for your personal style. Each piece complements the others beautifully.`,
+                        `Smart combination that works for multiple occasions. Versatile and fashionable.`
+                    ];
+                    return reasons[Math.floor(Math.random() * reasons.length)];
+                }
+                
+                // Save outfit function
+                function saveOutfit(outfitId) {
+                    console.log('Saving outfit:', outfitId);
+                    alert('Outfit saved to your collection!');
+                }
+
+                // Regenerate outfit function
+                // Regenerate specific outfit only
+                function regenerateSpecificOutfit(outfitId) {
+                    console.log('Regenerating specific outfit:', outfitId);
+                    
+                    // Find the outfit card element
+                    const outfitCard = document.querySelector(`[data-outfit-id="${outfitId}"]`);
+                    if (!outfitCard) {
+                        console.error('Outfit card not found:', outfitId);
+                        return;
+                    }
+                    
+                    // Add loading state to the regenerate button
+                    const regenerateBtn = outfitCard.querySelector('.btn-primary');
+                    if (regenerateBtn) {
+                        regenerateBtn.classList.add('loading');
+                        regenerateBtn.disabled = true;
+                    }
+                    
+                    // Generate a new outfit for this specific card
+                    setTimeout(() => {
+                        const newOutfit = generateSingleOutfit(outfitId);
+                        
+                        // Update the outfit card with new data
+                        updateOutfitCard(outfitCard, newOutfit);
+                        
+                        // Remove loading state
+                        if (regenerateBtn) {
+                            regenerateBtn.classList.remove('loading');
+                            regenerateBtn.disabled = false;
+                        }
+                        
+                        console.log('Outfit regenerated successfully:', newOutfit);
+                    }, 1000);
+                }
+                
+                // Generate a single outfit with better randomization
+                function generateSingleOutfit(outfitId) {
+                    const tops = wardrobeItems.filter(item => item.category === 'topwear');
+                    const bottoms = wardrobeItems.filter(item => item.category === 'bottomwear');
+                    const shoes = wardrobeItems.filter(item => item.category === 'footwear');
+                    const accessories = wardrobeItems.filter(item => item.category === 'accessories');
+                    
+                    if (tops.length === 0 || bottoms.length === 0 || shoes.length === 0) {
+                        return null;
+                    }
+                    
+                    // Use different randomization strategy for each regeneration
+                    const randomSeed = Date.now() + Math.random() * 1000;
+                    const outfitIndex = Math.floor(randomSeed % Math.min(tops.length, bottoms.length, shoes.length));
+                    
+                    const outfit = {
+                        id: outfitId, // Keep the same ID
+                        name: getOutfitName(outfitIndex),
+                        items: [],
+                        score: 0,
+                        reason: '',
+                        intelligence: 'trained'
+                    };
+                    
+                    // Use intelligent selection with randomization
+                    const top = selectIntelligentItemWithRandomization(tops, currentEvent, currentWeather, outfitIndex, 'top', randomSeed);
+                    const bottom = selectIntelligentItemWithRandomization(bottoms, currentEvent, currentWeather, outfitIndex, 'bottom', randomSeed);
+                    const shoe = selectIntelligentItemWithRandomization(shoes, currentEvent, currentWeather, outfitIndex, 'footwear', randomSeed);
+                    
+                    outfit.items = [top, bottom, shoe];
+                    
+                    // Add accessory if available and appropriate
+                    if (accessories.length > 0 && Math.random() > 0.5) {
+                        const accessory = accessories[Math.floor(randomSeed * 7) % accessories.length];
+                        outfit.items.push(accessory);
+                    }
+                    
+                    // Calculate intelligent score and reason
+                    const analysis = analyzeOutfitIntelligence(outfit.items, currentEvent, currentWeather);
+                    outfit.score = analysis.score;
+                    outfit.reason = analysis.reason;
+                    
+                    return outfit;
+                }
+                
+                // Enhanced item selection with randomization
+                function selectIntelligentItemWithRandomization(items, event, weather, index, type, randomSeed) {
+                    if (items.length === 0) return null;
+                    
+                    // Get current season
+                    const currentSeason = getCurrentSeason(weather);
+                    
+                    // Filter items by season appropriateness
+                    const seasonalItems = items.filter(item => {
+                        const itemSeason = getItemSeason(item, weather);
+                        return itemSeason === currentSeason || itemSeason === 'all-season';
+                    });
+                    
+                    // Use seasonal items if available, otherwise use all items
+                    const candidateItems = seasonalItems.length > 0 ? seasonalItems : items;
+                    
+                    // Apply randomization based on seed
+                    const randomIndex = Math.floor(randomSeed * (index + 1) * 7) % candidateItems.length;
+                    
+                    return candidateItems[randomIndex];
+                }
+                
+                // Update outfit card with new data
+                function updateOutfitCard(outfitCard, newOutfit) {
+                    if (!newOutfit) return;
+                    
+                    // Update outfit title
+                    const titleElement = outfitCard.querySelector('.outfit-title');
+                    if (titleElement) {
+                        titleElement.textContent = newOutfit.name;
+                    }
+                    
+                    // Update outfit score
+                    const scoreElement = outfitCard.querySelector('.outfit-score');
+                    if (scoreElement) {
+                        scoreElement.textContent = newOutfit.score + '%';
+                        scoreElement.className = 'outfit-score';
+                        if (newOutfit.score >= 90) scoreElement.classList.add('excellent');
+                        else if (newOutfit.score >= 80) scoreElement.classList.add('good');
+                        else if (newOutfit.score >= 60) scoreElement.classList.add('average');
+                        else scoreElement.classList.add('poor');
+                    }
+                    
+                    // Update outfit items
+                    const itemsContainer = outfitCard.querySelector('.outfit-items');
+                    if (itemsContainer && newOutfit.items) {
+                        let itemsHTML = '';
+                        newOutfit.items.forEach(item => {
+                            // Get appropriate icon based on category if no image
+                            const getCategoryIcon = (category) => {
+                                const icons = {
+                                    'topwear': 'fas fa-tshirt',
+                                    'bottomwear': 'fas fa-user',
+                                    'footwear': 'fas fa-shoe-prints',
+                                    'accessories': 'fas fa-gem',
+                                    'outerwear': 'fas fa-vest',
+                                    'dresses': 'fas fa-female'
+                                };
+                                return icons[category] || 'fas fa-tshirt';
+                            };
+                            
+                            const itemIcon = item.image ? 
+                                `<img src="${item.image}" alt="${item.name}" class="item-image">` : 
+                                `<div class="item-emoji"><i class="${getCategoryIcon(item.category)}"></i></div>`;
+                            
+                            itemsHTML += `
+                                <div class="outfit-item">
+                                    ${itemIcon}
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-category">${item.category}</div>
+                                </div>
+                            `;
+                        });
+                        itemsContainer.innerHTML = itemsHTML;
+                    }
+                    
+                    // Update outfit reason
+                    const reasonElement = outfitCard.querySelector('.outfit-reason p');
+                    if (reasonElement) {
+                        reasonElement.textContent = newOutfit.reason;
+                    }
+                    
+                    // Update regenerate button onclick
+                    const regenerateBtn = outfitCard.querySelector('.btn-primary');
+                    if (regenerateBtn) {
+                        regenerateBtn.setAttribute('onclick', `regenerateSpecificOutfit(${newOutfit.id})`);
+                    }
+                }
+                
+                // Show feedback modal
+                function showFeedbackModal() {
+                    const modal = document.getElementById('feedbackModal');
+                    modal.classList.add('active');
+                }
+                
+                // Submit feedback
+                function submitFeedback(type) {
+                    const modal = document.getElementById('feedbackModal');
+                    
+                    // Update modal content based on feedback
+                    const content = modal.querySelector('.feedback-content');
+                    if (type === 'positive') {
+                        content.innerHTML = `
+                            <div class="feedback-icon">❤️</div>
+                            <h3 class="feedback-title">Thank You!</h3>
+                            <p class="feedback-text">We're glad you love the outfits! We'll use this feedback to create even better suggestions for you.</p>
+                            <div class="feedback-buttons">
+                                <button class="feedback-btn positive" onclick="closeFeedbackModal()">
+                                    <i class="fas fa-check"></i> Awesome!
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        content.innerHTML = `
+                            <div class="feedback-icon"><i class="fas fa-lightbulb"></i></div>
+                            <h3 class="feedback-title">Thanks for the Feedback!</h3>
+                            <p class="feedback-text">We'll work on improving our suggestions. Try generating new outfits or adjusting your preferences!</p>
+                            <div class="feedback-buttons">
+                                <button class="feedback-btn positive" onclick="closeFeedbackModal()">
+                                    <i class="fas fa-sync-alt"></i> Try Again
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    // Auto-close after 3 seconds
+                    setTimeout(() => {
+                        closeFeedbackModal();
+                    }, 3000);
+                }
+                
+                // Close feedback modal
+                function closeFeedbackModal() {
+                    const modal = document.getElementById('feedbackModal');
+                    modal.classList.remove('active');
+                }
+                
+                // Smart Local Algorithm to Generate Outfits
+                function aiGenerateOutfits() {
+                    const outfits = [];
+                    
+                    // Get items by category
+                    const tops = wardrobeItems.filter(i => i.category === 'topwear');
+                    const bottoms = wardrobeItems.filter(i => i.category === 'bottomwear');
+                    const shoes = wardrobeItems.filter(i => i.category === 'footwear');
+                    const accessories = wardrobeItems.filter(i => i.category === 'accessories');
+                    
+                    if (tops.length === 0 || bottoms.length === 0 || shoes.length === 0) {
+                        return [];
+                    }
+                    
+                    // Generate 3 different combinations
+                    for (let i = 0; i < 3; i++) {
+                        const outfit = {
+                            id: Date.now() + i,
+                            name: getOutfitName(i),
+                            items: [],
+                            score: Math.floor(Math.random() * 10) + 90,
+                            reason: ''
+                        };
+                        
+                        // Select items based on occasion and weather
+                        const top = selectSmartItem(tops, currentEvent, currentWeather, i);
+                        const bottom = selectSmartItem(bottoms, currentEvent, currentWeather, i);
+                        const shoe = selectSmartItem(shoes, currentEvent, currentWeather, i);
+                        
+                        outfit.items = [top, bottom, shoe];
+                        
+                        // Add accessory if available
+                        if (accessories.length > 0) {
+                            const accessory = accessories[i % accessories.length];
+                            outfit.items.push(accessory);
+                        }
+                        
+                        outfit.reason = generateReason(outfit, currentWeather, currentEvent);
+                        outfits.push(outfit);
+                    }
+                    
+                    console.log('✅ Generated outfits:', outfits.length);
+                    console.log('🎯 Outfit details:', outfits);
+                    return outfits;
+                }
+
+                // Smart Item Selection
+                function selectSmartItem(items, event, weather, variation) {
+                    if (items.length === 0) return null;
+                    
+                    // Filter by occasion if event is formal/business
+                    let filtered = items;
+                    if (event.toLowerCase().includes('meeting') || event.toLowerCase().includes('business')) {
+                        filtered = items.filter(i => i.occasion === 'formal');
+                    }
+                    
+                    // Filter by weather/season
+                    if (weather.temp > 25) {
+                        const summer = filtered.filter(i => i.season === 'summer' || i.season === 'all-season');
+                        if (summer.length > 0) filtered = summer;
+                    } else if (weather.temp < 15) {
+                        const winter = filtered.filter(i => i.season === 'winter' || i.season === 'all-season');
+                        if (winter.length > 0) filtered = winter;
+                    }
+                    
+                    // Return different item for each variation
+                    return filtered[variation % filtered.length] || items[variation % items.length];
+                }
+
+                // Generate Outfit Name
+                function getOutfitName(index) {
+                    const names = ['Professional Look', 'Smart Casual', 'Relaxed Style', 'Evening Elegance', 'Weekend Vibes'];
+                    return names[index % names.length];
+                }
+
+                // Generate Reason
+                function generateReason(outfit, weather, event) {
+                    const temp = weather.temp;
+                    const condition = weather.condition;
+                    
+                    let reason = `This outfit is perfect for your ${event}. `;
+                    
+                    if (temp > 25) {
+                        reason += 'The light fabrics will keep you cool in the warm weather. ';
+                    } else if (temp < 15) {
+                        reason += 'The layers will keep you warm on this cold day. ';
+                    } else {
+                        reason += 'The temperature is pleasant, making this a comfortable choice. ';
+                    }
+                    
+                    if (condition === 'Rain') {
+                        reason += 'Dark colors are practical for rainy conditions.';
+                    } else {
+                        reason += 'The color combination is stylish and appropriate.';
+                    }
+                    
+                    return reason;
+                }
+
+                // Create Outfit Card HTML
+                function createOutfitCard(outfit, index) {
+                    return `
+                        <div class="outfit-card">
+                            <div class="outfit-header">
+                                <div class="outfit-title">
+                                    ✨ ${outfit.name}
+                            </div>
+                                <div class="outfit-score">
+                                    ${outfit.score}% Match
+                            </div>
+                            </div>
+                            
+                            <div class="outfit-items">
+                                ${outfit.items.map(item => `
+                                    <div class="outfit-item">
+                                        <div class="item-emoji">${item.emoji}</div>
+                                        <div class="item-name">${item.name}</div>
+                        </div>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="outfit-reason">
+                                <h4><i class="fas fa-lightbulb"></i> Why This Works</h4>
+                                <p>${outfit.reason}</p>
+                            </div>
+                            
+                            <div class="outfit-actions">
+                                <button class="save-btn" onclick="saveOutfit(${outfit.id}, '${outfit.name}', ${JSON.stringify(outfit.items.map(i => i.id))})">
+                                    <i class="fas fa-bookmark"></i>
+                                    Save Outfit
+                                </button>
+                                <button class="regenerate-btn" onclick="regenerateSpecificOutfit(${outfit.id})">
+                                    <i class="fas fa-sync-alt"></i>
+                                    Regenerate
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Logout functionality
+                document.getElementById('logout-btn-main').addEventListener('click', function() {
+                    if (confirm('Are you sure you want to logout?')) {
+                        userDB.logoutUser();
+                        sessionStorage.clear();
+                        localStorage.removeItem('isLoggedIn');
+                        window.location.href = 'landing.html';
+                    }
+                });
+
+                // Settings button functionality
+                document.getElementById('settings-btn-main').addEventListener('click', function() {
+                    window.location.href = 'settings.html';
+                });
+
+            </script>
+        </main>
+    </div>
+
+</body>
+</html>

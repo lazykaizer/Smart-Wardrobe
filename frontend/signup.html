@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Smart Wardrobe</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.74/build/spline-viewer.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body.auth-page {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #dce9f8, #f0f6ff);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .modern-auth-container {
+      display: flex;
+      width: 100%;
+      max-width: 1300px;
+      min-height: 90vh;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      background: linear-gradient(to right, #f4f8ff 40%, #dceeff 100%);
+      margin: 20px;
+    }
+
+    /* Left Form Section */
+    .auth-form-section {
+      width: 45%;
+      background: linear-gradient(160deg, #f1f6ff, #e3f0ff);
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .auth-logo-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .auth-logo {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 10px;
+    }
+
+    .auth-title h1 {
+      font-size: 2rem;
+      color: #1e3a8a;
+    }
+
+    .auth-title p {
+      color: #6b7280;
+      font-size: 1rem;
+      margin-top: 5px;
+    }
+
+    .modern-auth-form .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #1f2937;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      outline: none;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      min-height: 48px;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .password-input-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .password-input-container input {
+      width: 100%;
+      padding-right: 48px;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .auth-footer {
+      margin-top: 20px;
+      padding-top: 15px;
+      text-align: center;
+      color: #374151;
+      font-size: 14px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .auth-footer p {
+      margin: 0;
+    }
+
+    .auth-footer a {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 5px;
+    }
+
+    .auth-footer a:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    /* Terms Checkbox */
+    .terms-checkbox {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .terms-checkbox input[type="checkbox"] {
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .terms-checkbox label {
+      font-size: 0.9rem;
+      color: #374151;
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+
+    .terms-checkbox label a {
+      color: #3b82f6;
+      text-decoration: underline;
+    }
+
+    .terms-checkbox label a:hover {
+      color: #2563eb;
+    }
+
+    /* Right Model Section */
+    .auth-model-section {
+      width: 55%;
+      background: linear-gradient(180deg, #d9eaff, #edf5ff);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spline-model-fullscreen {
+      position: absolute;
+      top: -8%;
+      left: -200px;
+      width: 125%;
+      height: 110%;
+      transform: scale(1.12);
+    }
+
+    .spline-credit {
+      display: none;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      background: #fff;
+      color: #111;
+      border-radius: 8px;
+      padding: 14px 18px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+      display: none;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .toast.show {
+      display: flex;
+      animation: fadeInOut 3s ease forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-20px); }
+      10%, 90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
+
+    .toast-success { border-left: 5px solid #22c55e; }
+    .toast-error { border-left: 5px solid #ef4444; }
+
+    .toast i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+
+    @media (max-width: 900px) {
+      .modern-auth-container {
+        flex-direction: column;
+        height: auto;
+      }
+      .auth-form-section, .auth-model-section {
+        width: 100%;
+        height: auto;
+      }
+      .spline-model-fullscreen {
+        left: 0;
+        width: 100%;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="auth-page">
+  <div class="modern-auth-container">
+    <div class="auth-form-section">
+      <div class="auth-logo-container">
+        <img src="assets/logo.png" alt="Smart Wardrobe Logo" class="auth-logo">
+        <div class="auth-title">
+          <h1>Smart Wardrobe</h1>
+          <p>Create your account to get started</p>
+        </div>
+      </div>
+
+      <form id="signup-form" class="modern-auth-form">
+        <div class="form-group">
+          <label for="name">Username</label>
+          <input type="text" id="name" name="name" placeholder="Enter your username" required>
+          <small class="error-message" id="name-error"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email" required>
+          <small class="error-message" id="email-error"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-input-container">
+            <input type="password" id="password" name="password" placeholder="Create a password" required>
+            <button type="button" class="password-toggle-btn" id="password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <small class="error-message" id="password-error"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <div class="password-input-container">
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
+            <button type="button" class="password-toggle-btn" id="confirm-password-toggle" aria-label="Toggle password visibility">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <small class="error-message" id="confirm-password-error"></small>
+        </div>
+
+        <div class="terms-checkbox">
+          <input type="checkbox" id="terms-checkbox" name="terms" required>
+          <label for="terms-checkbox">
+            I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+
+        <div class="auth-footer">
+          <p>Already have an account? <a href="login.html">Sign In</a></p>
+        </div>
+      </form>
+    </div>
+
+    <div class="auth-model-section">
+      <spline-viewer url="https://prod.spline.design/6rY1XfdadvnZhlSL/scene.splinecode" class="spline-model-fullscreen"></spline-viewer>
+      <div class="spline-credit">Built with Spline</div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">
+    <i id="toast-icon" class="fas"></i>
+    <div id="toast-message"></div>
+  </div>
+
+  <script src="users.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const signupForm = document.getElementById("signup-form");
+      const nameInput = document.getElementById("name");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirm-password");
+      const passwordToggle = document.getElementById("password-toggle");
+      const confirmPasswordToggle = document.getElementById("confirm-password-toggle");
+      const nameError = document.getElementById("name-error");
+      const emailError = document.getElementById("email-error");
+      const passwordError = document.getElementById("password-error");
+      const confirmPasswordError = document.getElementById("confirm-password-error");
+
+      // Toggle password visibility
+      passwordToggle.addEventListener("click", () => {
+        const icon = passwordToggle.querySelector("i");
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+          passwordInput.type = "password";
+          icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+      });
+
+      confirmPasswordToggle.addEventListener("click", () => {
+        const icon = confirmPasswordToggle.querySelector("i");
+        if (confirmPasswordInput.type === "password") {
+          confirmPasswordInput.type = "text";
+          icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+          confirmPasswordInput.type = "password";
+          icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+      });
+
+      // Password validation - show requirements as user types
+      passwordInput.addEventListener("input", () => {
+        const password = passwordInput.value;
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        
+        let message = "";
+        if (password.length < minLength) {
+          message += "• Password must be at least 8 characters<br>";
+        }
+        if (!hasUpperCase) {
+          message += "• Must contain at least one uppercase letter<br>";
+        }
+        if (!hasLowerCase) {
+          message += "• Must contain at least one lowercase letter<br>";
+        }
+        if (!hasNumber) {
+          message += "• Must contain at least one number<br>";
+        }
+        
+        passwordError.innerHTML = message;
+        passwordError.style.color = message ? "#e74c3c" : "";
+      });
+      
+      // Form submission
+      signupForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        
+        // Clear previous errors
+        nameError.textContent = "";
+        emailError.textContent = "";
+        confirmPasswordError.textContent = "";
+
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          emailError.textContent = "Please enter a valid email address";
+          return;
+        }
+        
+        // Validate password strength
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        
+        if (password.length < minLength || !hasUpperCase || !hasLowerCase || !hasNumber) {
+          passwordError.innerHTML = "Password must meet all requirements";
+          return;
+        }
+        
+        // Validate password confirmation
+        if (password !== confirmPassword) {
+          confirmPasswordError.textContent = "Passwords do not match";
+          return;
+        }
+        
+        // Validate name
+        if (name.length < 2) {
+          nameError.textContent = "Name must be at least 2 characters long";
+          return;
+        }
+
+        // Register user
+        const result = userDB.registerUser(name, email, password);
+        
+        if (result.success) {
+          showToast("success", "Account created successfully! Redirecting to login...");
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1500);
+        } else {
+          showToast("error", result.message);
+        }
+      });
+
+      function showToast(type, message) {
+        const toast = document.getElementById("toast");
+        const toastIcon = document.getElementById("toast-icon");
+        const toastMessage = document.getElementById("toast-message");
+
+        toastIcon.className = type === "success" ? "fas fa-check-circle" : "fas fa-exclamation-circle";
+        toast.className = `toast toast-${type} show`;
+        toastMessage.textContent = message;
+
+        setTimeout(() => {
+          toast.className = toast.className.replace("show", "");
+        }, 3000);
+      }
+    });
+  </script>
+</body>
+</html>

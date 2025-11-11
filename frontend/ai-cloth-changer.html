@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cloth Changer - Smart Wardrobe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="users.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!userDB.isLoggedIn()) {
+                window.location.href = 'login.html';
+            }
+            
+            // Logout functionality
+            document.getElementById('logout-btn-main').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    userDB.logoutUser();
+                    sessionStorage.clear();
+                    localStorage.removeItem('isLoggedIn');
+                    window.location.href = 'landing.html';
+                }
+            });
+
+            // Settings functionality
+            document.getElementById('settings-btn-main').addEventListener('click', function() {
+                window.location.href = 'settings.html';
+            });
+        });
+
+        // Simple sidebar toggle function
+        window.toggleSidebar = function() {
+            document.body.classList.toggle('sidebar-collapsed');
+            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+            const label = document.querySelector('.label');
+            const icon = document.querySelector('.fa-chevron-left');
+            
+            if (label) label.textContent = isCollapsed ? 'Expand' : 'Collapse';
+            if (icon) icon.classList.toggle('fa-rotate-180', isCollapsed);
+            
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        };
+    </script>
+    </head>
+<body>
+
+    <aside class="app-sidebar">
+        <div class="app-header">
+            <img src="assets/logo.png" alt="Logo"/>
+            <h1 class="app-title">Smart Wardrobe</h1>
+        </div>
+        <nav class="app-nav" data-active="4">
+            <div class="nav-glider-container">
+                <div class="nav-glider"></div>
+            </div>
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i><span class="nav-link-text">Welcome</span>
+            </a>
+            <a href="wardrobe.html" class="nav-link">
+                <i class="fas fa-tshirt"></i><span class="nav-link-text">My Wardrobe</span>
+            </a>
+            <a href="ai-stylist.html" class="nav-link">
+                <i class="fas fa-magic"></i><span class="nav-link-text">AI Outfits</span>
+            </a>
+            <a href="style-guide.html" class="nav-link">
+                <i class="fas fa-chart-bar"></i><span class="nav-link-text">Analytics</span>
+            </a>
+            <a href="ai-cloth-changer.html" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"></path><path d="M17 20V4"></path><path d="m3 8 4-4 4 4"></path><path d="M7 4v16"></path></svg><span class="nav-link-text">AI Cloth Changer</span>
+            </a>
+        </nav>
+        <div class="app-bottom">
+            <button id="sidebar-toggle" class="btn-sidebar-toggle" onclick="toggleSidebar()">
+                <div class="button-outer">
+                    <div class="button-inner">
+                        <span class="label">Collapse</span>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <div class="app-content">
+        <header class="app-topbar">
+            <button class="settings-btn" id="settings-btn-main">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+            <button class="logout-btn" id="logout-btn-main">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </header>
+
+        <main class="ai-cloth-changer-content">
+            <style>
+                /* Topbar styles */
+                .app-topbar {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                    padding: 20px 32px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .settings-btn {
+                    background: linear-gradient(135deg, #a855f7, #7c3aed);
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-right: 12px;
+                }
+
+                .settings-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+                }
+                
+                .logout-btn {
+                    background: linear-gradient(135deg, #ef4444, #dc2626);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                    font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    margin-left: 12px;
+                }
+                
+                .logout-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+                }
+
+                /* Local styles scoped to this page only */
+                .tryon-grid { display: grid; grid-template-columns: 420px 1fr; gap: 24px; }
+                .panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; }
+                .panel h3 { margin-bottom: 12px; }
+                .dropzone { border: 2px dashed rgba(255,255,255,0.18); border-radius: 12px; padding: 22px; text-align: center; cursor: pointer; transition: background-color 0.2s; }
+                .dropzone.dragover { background: rgba(255,255,255,0.06); }
+                .dz-instructions { color: #a3aed0; margin-top: 6px; font-size: 14px; }
+                .file-list { margin-top: 12px; display: grid; gap: 10px; max-height: 260px; overflow: auto; }
+                .file-item { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 8px; }
+                .file-item img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; }
+                .file-meta { display: flex; flex-direction: column; }
+                .file-meta small { color: #a3aed0; }
+                .role-select { background: #111827; color: #e5e7eb; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 6px 8px; }
+                .file-actions button { background: transparent; color: #e5e7eb; border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+                .controls { margin-top: 12px; display: flex; gap: 10px; }
+                .controls .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.16); background: var(--primary-color); color: #fff; cursor: pointer; }
+                .controls .btn.secondary { background: transparent; }
+                .controls .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+                .preview-wrap { display: grid; grid-template-rows: auto 1fr; gap: 12px; height: 100%; }
+                .preview-stage { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; height: 560px; display: flex; align-items: center; justify-content: center; padding: 16px; }
+                .preview-stage canvas, .preview-stage img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: block; }
+                .empty-preview { display: grid; place-items: center; text-align: center; color: #a3aed0; gap: 8px; }
+                .section { margin-top: 32px; }
+                .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+                .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; }
+                @media (max-width: 980px) { .tryon-grid { grid-template-columns: 1fr; } }
+                
+                /* Animated Generate Button */
+                .generate-btn {
+                    border: none;
+                    width: 15em;
+                    height: 5em;
+                    border-radius: 3em;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 12px;
+                    background: #1C1A1C;
+                    cursor: pointer;
+                    transition: all 450ms ease-in-out;
+                }
+                .sparkle {
+                    fill: #AAAAAA;
+                    transition: all 800ms ease;
+                }
+                .generate-text {
+                    font-weight: 600;
+                    color: #AAAAAA;
+                    font-size: medium;
+                }
+                .generate-btn:hover {
+                    background: linear-gradient(0deg,#A47CF3,#683FEA);
+                    box-shadow: inset 0px 1px 0px 0px rgba(255, 255, 255, 0.4),
+                    inset 0px -4px 0px 0px rgba(0, 0, 0, 0.2),
+                    0px 0px 0px 4px rgba(255, 255, 255, 0.2),
+                    0px 0px 180px 0px #9917FF;
+                    transform: translateY(-2px);
+                }
+                .generate-btn:hover .generate-text {
+                    color: white;
+                }
+                .generate-btn:hover .sparkle {
+                    fill: white;
+                    transform: scale(1.2);
+                }
+
+                /* Enhanced sections styling */
+                .enhanced-section {
+                    margin-top: 48px;
+                    padding: 32px;
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+                    border-radius: 20px;
+                    border: 1px solid rgba(168, 85, 247, 0.2);
+                }
+                .enhanced-section h2 {
+                    font-size: 2em;
+                    margin-bottom: 24px;
+                    background: linear-gradient(135deg, #A855F7, #3B82F6);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    text-align: center;
+                }
+                .enhanced-cards {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 24px;
+                }
+                .enhanced-card {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    padding: 24px;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .enhanced-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1));
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                    z-index: 0;
+                }
+                .enhanced-card:hover {
+                    transform: translateY(-5px);
+                    border-color: rgba(168, 85, 247, 0.5);
+                    box-shadow: 0 10px 40px rgba(168, 85, 247, 0.2);
+                }
+                .enhanced-card:hover::before {
+                    opacity: 1;
+                }
+                .enhanced-card-content {
+                    position: relative;
+                    z-index: 1;
+                }
+                .enhanced-card-icon {
+                    font-size: 2.5em;
+                    margin-bottom: 12px;
+                    display: block;
+                }
+                .enhanced-card-title {
+                    font-weight: 600;
+                    font-size: 1.1em;
+                    margin-bottom: 8px;
+                    color: #fff;
+                }
+                .enhanced-card-description {
+                    color: #a3aed0;
+                    line-height: 1.6;
+                }
+                .step-card {
+                    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1));
+                    border: 2px solid rgba(168, 85, 247, 0.3);
+                }
+                .step-number {
+                    display: inline-block;
+                    width: 40px;
+                    height: 40px;
+                    background: linear-gradient(135deg, #A855F7, #3B82F6);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    font-size: 1.2em;
+                    margin-bottom: 12px;
+                }
+            </style>
+
+            <div class="page-header">
+                <h1>AI <span class="highlight">Clothes Changer</span></h1>
+                <p>Try on different clothes virtually. Upload a person photo and garment images, then generate a try‑on preview.</p>
+            </div>
+
+            <div class="tryon-grid">
+                <div class="panel">
+                    <h3>Upload Images (Max 10)</h3>
+                    <label class="dropzone" id="dropzone">
+                        <input id="fileInput" type="file" accept="image/*" multiple style="display:none" />
+                        <div>
+                            <div style="font-size:36px">⬆️</div>
+                            <div><strong>Drag & drop</strong> your images or click to browse</div>
+                            <div class="dz-instructions">Select up to 10 files</div>
+                        </div>
+                    </label>
+                    <div class="dz-instructions" style="margin-top:8px">Assign each upload as a Person or a Garment. At least one of each is required.</div>
+                    <div class="file-list" id="fileList"></div>
+                    <div class="controls">
+                        <button class="generate-btn" id="generateBtn">
+                            <svg height="24" width="24" fill="#AAAAAA" viewBox="0 0 24 24" class="sparkle">
+                                <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+                            </svg>
+                            <span class="generate-text">Generate Try‑On</span>
+                        </button>
+                        <button class="btn secondary" id="clearBtn">Clear</button>
+                        <button class="btn secondary" id="downloadBtn" disabled>Download Result</button>
+                    </div>
+                </div>
+
+                <div class="panel preview-wrap">
+                    <h3>Preview</h3>
+                    <div class="preview-stage" id="preview">
+                        <div class="empty-preview">
+                            <div style="font-size:42px">🖼️</div>
+                            <div>Your generated image will appear here</div>
+                            <small>Provide inputs and click Generate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="enhanced-section">
+                <h2>✨ Why Choose Our AI Clothes Changer?</h2>
+                <div class="enhanced-cards">
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">⚡</span>
+                            <div class="enhanced-card-title">Lightning Fast</div>
+                            <div class="enhanced-card-description">Photorealistic virtual try‑on in seconds with cutting-edge AI technology</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🎯</span>
+                            <div class="enhanced-card-title">Advanced Recognition</div>
+                            <div class="enhanced-card-description">Smart body shape and pose detection for accurate fitting</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🧵</span>
+                            <div class="enhanced-card-title">Realistic Simulation</div>
+                            <div class="enhanced-card-description">Natural fabric draping and texture simulation that looks authentic</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">💡</span>
+                            <div class="enhanced-card-title">Light Preservation</div>
+                            <div class="enhanced-card-description">Maintains original lighting and shadows for natural results</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">👕</span>
+                            <div class="enhanced-card-title">Universal Compatibility</div>
+                            <div class="enhanced-card-description">Works seamlessly with all clothing types and fashion styles</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🎨</span>
+                            <div class="enhanced-card-title">High Resolution</div>
+                            <div class="enhanced-card-description">Professional-grade outputs perfect for e‑commerce and marketing</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="enhanced-section">
+                <h2>🚀 How It Works</h2>
+                <div class="enhanced-cards">
+                    <div class="enhanced-card step-card">
+                        <div class="enhanced-card-content">
+                            <div class="step-number">1</div>
+                            <div class="enhanced-card-title">Upload Person Photo</div>
+                            <div class="enhanced-card-description">Start by uploading a clear front‑facing photo of yourself or your model</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card step-card">
+                        <div class="enhanced-card-content">
+                            <div class="step-number">2</div>
+                            <div class="enhanced-card-title">Select Garments</div>
+                            <div class="enhanced-card-description">Upload one or more garment images you want to try on virtually</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card step-card">
+                        <div class="enhanced-card-content">
+                            <div class="step-number">3</div>
+                            <div class="enhanced-card-title">Generate Preview</div>
+                            <div class="enhanced-card-description">Click the magical Generate button and watch AI create your try‑on</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card step-card">
+                        <div class="enhanced-card-content">
+                            <div class="step-number">4</div>
+                            <div class="enhanced-card-title">Download Result</div>
+                            <div class="enhanced-card-description">Save your perfect result in full resolution for any purpose</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="enhanced-section">
+                <h2>🔧 Key Features of AI Virtual Try‑On Technology</h2>
+                <div class="enhanced-cards">
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🤖</span>
+                            <div class="enhanced-card-title">Smart Recognition</div>
+                            <div class="enhanced-card-description">Advanced body recognition and pose estimation algorithms</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🎭</span>
+                            <div class="enhanced-card-title">Fabric Physics</div>
+                            <div class="enhanced-card-description">Realistic fabric simulation and natural draping effects</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">📐</span>
+                            <div class="enhanced-card-title">Multi‑Layer Processing</div>
+                            <div class="enhanced-card-description">Complex outfit handling with multiple garment layers</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🌈</span>
+                            <div class="enhanced-card-title">Color Accuracy</div>
+                            <div class="enhanced-card-description">Perfect color and lighting preservation across images</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">📍</span>
+                            <div class="enhanced-card-title">Precision Alignment</div>
+                            <div class="enhanced-card-description">Accurate body landmark detection and alignment</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">💎</span>
+                            <div class="enhanced-card-title">E‑Commerce Ready</div>
+                            <div class="enhanced-card-description">High‑resolution, professional quality outputs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="enhanced-section">
+                <h2>👥 Who Can Benefit from Virtual Try‑On Technology?</h2>
+                <div class="enhanced-cards">
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🛍️</span>
+                            <div class="enhanced-card-title">Online Shoppers</div>
+                            <div class="enhanced-card-description">Visualize fit and style before buying to make confident purchase decisions</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🏪</span>
+                            <div class="enhanced-card-title">E‑commerce Retailers</div>
+                            <div class="enhanced-card-description">Reduce returns and increase conversions with virtual try‑on experiences</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">✂️</span>
+                            <div class="enhanced-card-title">Fashion Designers</div>
+                            <div class="enhanced-card-description">Prototype and showcase collections quickly without physical samples</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">💼</span>
+                            <div class="enhanced-card-title">Personal Stylists</div>
+                            <div class="enhanced-card-description">Create stunning remote lookbooks for clients anywhere in the world</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">📸</span>
+                            <div class="enhanced-card-title">Photographers</div>
+                            <div class="enhanced-card-description">Generate multiple outfit variations without additional photoshoots</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🌟</span>
+                            <div class="enhanced-card-title">Influencers</div>
+                            <div class="enhanced-card-description">Produce diverse, engaging content efficiently for social media</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="enhanced-section">
+                <h2>💡 Tips for Perfect Virtual Try‑On Results</h2>
+                <div class="enhanced-cards">
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">📷</span>
+                            <div class="enhanced-card-title">High‑Quality Images</div>
+                            <div class="enhanced-card-description">Use sharp, well‑lit photos with good resolution for best results</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">👔</span>
+                            <div class="enhanced-card-title">Flat‑Lay Garments</div>
+                            <div class="enhanced-card-description">Flat‑lay or mannequin clothing images produce the most realistic try‑ons</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🧍</span>
+                            <div class="enhanced-card-title">Front‑Facing Pose</div>
+                            <div class="enhanced-card-description">Use front‑facing person photos with relaxed arms for optimal fitting</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">🎯</span>
+                            <div class="enhanced-card-title">Match Garment Types</div>
+                            <div class="enhanced-card-description">Pair similar garments (shirt with shirt, dress with dress) for accuracy</div>
+                        </div>
+                    </div>
+                    <div class="enhanced-card">
+                        <div class="enhanced-card-content">
+                            <span class="enhanced-card-icon">☀️</span>
+                            <div class="enhanced-card-title">Consistent Lighting</div>
+                            <div class="enhanced-card-description">Keep lighting conditions similar between person and garment images</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function(){
+                    const fileInput = document.getElementById('fileInput');
+                    const dropzone = document.getElementById('dropzone');
+                    const fileList = document.getElementById('fileList');
+                    const preview = document.getElementById('preview');
+                    const generateBtn = document.getElementById('generateBtn');
+                    const clearBtn = document.getElementById('clearBtn');
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    /** @type {{file:File, url:string, role:'person'|'garment'}[]} */
+                    const items = [];
+                    let lastDataUrl = '';
+
+                    function addFiles(files){
+                        const max = 10;
+                        for (const file of files){
+                            if (!file.type.startsWith('image/')) continue;
+                            if (items.length >= max) break;
+                            const url = URL.createObjectURL(file);
+                            items.push({ file, url, role: inferRoleByName(file.name) });
+                        }
+                        renderList();
+                    }
+
+                    function inferRoleByName(name){
+                        const lower = name.toLowerCase();
+                        if (/(shirt|dress|top|jeans|pant|skirt|jacket|hoodie|garment|cloth)/.test(lower)) return 'garment';
+                        return 'person';
+                    }
+
+                    function renderList(){
+                        fileList.innerHTML = '';
+                        items.forEach((item, idx)=>{
+                            const row = document.createElement('div');
+                            row.className = 'file-item';
+                            row.innerHTML = `
+                                <img src="${item.url}" alt="thumb">
+                                <div class="file-meta">
+                                    <strong>${item.file.name}</strong>
+                                    <small>${Math.round(item.file.size/1024)} KB</small>
+                                </div>
+                                <div class="file-actions">
+                                    <select class="role-select" data-idx="${idx}">
+                                        <option value="person" ${item.role==='person'?'selected':''}>Person</option>
+                                        <option value="garment" ${item.role==='garment'?'selected':''}>Garment</option>
+                                    </select>
+                                    <button data-remove="${idx}">Remove</button>
+                                </div>
+                            `;
+                            fileList.appendChild(row);
+                        });
+                    }
+
+                    // Rely on native label+input click; avoid double-open
+                    fileInput.addEventListener('change', (e)=> { addFiles(e.target.files); fileInput.value=''; });
+                    dropzone.addEventListener('dragover', (e)=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
+                    dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('dragover'));
+                    dropzone.addEventListener('drop', (e)=>{ e.preventDefault(); dropzone.classList.remove('dragover'); addFiles(e.dataTransfer.files); });
+
+                    fileList.addEventListener('change', (e)=>{
+                        const sel = e.target.closest('select');
+                        if (sel){ const i = parseInt(sel.dataset.idx,10); items[i].role = sel.value; }
+                    });
+                    fileList.addEventListener('click', (e)=>{
+                        const btn = e.target.closest('button');
+                        if (btn && btn.dataset.remove){ const i = parseInt(btn.dataset.remove,10); URL.revokeObjectURL(items[i].url); items.splice(i,1); renderList(); }
+                    });
+
+                    clearBtn.addEventListener('click', ()=>{ items.forEach(i=>URL.revokeObjectURL(i.url)); items.length = 0; renderList(); preview.innerHTML = '<div class="empty-preview"><div style="font-size:42px">🖼️</div><div>Your generated image will appear here</div><small>Provide inputs and click Generate</small></div>'; lastDataUrl=''; downloadBtn.setAttribute('disabled',''); });
+
+                    generateBtn.addEventListener('click', async ()=>{
+                        const persons = items.filter(i=>i.role==='person');
+                        const garments = items.filter(i=>i.role==='garment');
+                        if (persons.length===0 || garments.length===0){
+                            alert('Please upload at least one Person image and one Garment image.');
+                            return;
+                        }
+                        
+                        // Show loading state
+                        generateBtn.disabled = true;
+                        preview.innerHTML = `
+                            <div class="empty-preview">
+                                <div style="font-size:42px">⏳</div>
+                                <div>Processing with AI...</div>
+                                <small style="margin-top: 12px;">This may take a few seconds</small>
+                            </div>
+                        `;
+                        
+                        try {
+                            // Connect to Flask backend
+                            const formData = new FormData();
+                            formData.append('person', persons[0].file);
+                            formData.append('garment', garments[0].file);
+                            
+                            const response = await fetch('http://localhost:5000/api/change_cloth', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            const data = await response.json();
+                            
+                            console.log('API Response:', data); // DEBUG
+                            
+                            if (data.success) {
+                                console.log('Result base64 length:', data.result_base64?.length); // DEBUG
+                                
+                                // Display the result image
+                                const img = new Image();
+                                img.onload = () => {
+                                    console.log('Image loaded successfully!'); // DEBUG
+                                    preview.innerHTML = '';
+                                    preview.appendChild(img);
+                                    lastDataUrl = data.result_base64;
+                                    downloadBtn.removeAttribute('disabled');
+                                };
+                                img.onerror = (e) => {
+                                    console.error('Image failed to load:', e); // DEBUG
+                                    alert('Failed to load the result image. Check console for details.');
+                                };
+                                img.src = data.result_base64;
+                                img.style.maxWidth = '100%';
+                                img.style.maxHeight = '100%';
+                                img.style.borderRadius = '8px';
+                                
+                                // Show success message
+                                showToast('✅ AI cloth change successful!');
+                            } else {
+                                throw new Error(data.error || 'Unknown error');
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Failed to process image. Make sure Flask backend is running on http://localhost:5000\n\nError: ' + error.message);
+                            preview.innerHTML = `
+                                <div class="empty-preview">
+                                    <div style="font-size:42px">❌</div>
+                                    <div>Processing failed</div>
+                                    <small>${error.message}</small>
+                                </div>
+                            `;
+                        } finally {
+                            generateBtn.disabled = false;
+                        }
+                    });
+
+                    downloadBtn.addEventListener('click', ()=>{
+                        if (!lastDataUrl) return;
+                        const a = document.createElement('a');
+                        a.href = lastDataUrl;
+                        a.download = 'tryon-result.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                    });
+
+                    function loadImage(src){
+                        return new Promise((res, rej)=>{ const im = new Image(); im.onload=()=>res(im); im.onerror=rej; im.crossOrigin='anonymous'; im.src=src; });
+                    }
+
+                    // Toast notification helper
+                    function showToast(message) {
+                        const toastDiv = document.createElement('div');
+                        toastDiv.style.cssText = `
+                            position: fixed;
+                            top: 30px;
+                            right: 30px;
+                            background: linear-gradient(135deg, #10b981, #3b82f6);
+                            color: white;
+                            padding: 16px 24px;
+                            border-radius: 12px;
+                            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                            z-index: 10000;
+                            animation: slideInRight 0.5s ease;
+                        `;
+                        toastDiv.textContent = message;
+                        document.body.appendChild(toastDiv);
+                        setTimeout(() => {
+                            toastDiv.style.animation = 'fadeOut 0.5s ease';
+                            setTimeout(() => toastDiv.remove(), 500);
+                        }, 3000);
+                    }
+                    
+                    // Integration hook for real AI backend (ready for future upgrades)
+                    window.tryOnAPI = {
+                        async generate(personFile, garmentFile){
+                            const formData = new FormData();
+                            formData.append('person', personFile);
+                            formData.append('garment', garmentFile);
+                            const res = await fetch('http://localhost:5000/api/change_cloth', { 
+                                method: 'POST', 
+                                body: formData 
+                            });
+                            const data = await res.json();
+                            if (!data.success) throw new Error(data.error);
+                            return data.result_base64;
+                        }
+                    };
+                })();
+                
+                // Logout functionality
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.getElementById('logout-btn-main').addEventListener('click', function() {
+                        if (confirm('Are you sure you want to logout?')) {
+                            // Use userDB logout method
+                            userDB.logoutUser();
+                            // Clear session storage
+                            sessionStorage.clear();
+                            // Clear any other auth flags
+                            localStorage.removeItem('isLoggedIn');
+                            // Redirect to login page
+                            window.location.href = 'landing.html';
+                        }
+                    });
+                });
+            </script>
+        </main>
+    </div>
+
+</body>
+</html>
+

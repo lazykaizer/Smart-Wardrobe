@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartWardrobe AI - Your Style. Your Intelligence.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+        }
+
+        .video-background video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .video-background video.loaded {
+            opacity: 1;
+        }
+
+        .video-background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.3) 0%,
+                rgba(0, 0, 0, 0.4) 50%,
+                rgba(0, 0, 0, 0.5) 100%
+            );
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Main Content */
+        .landing-content {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header / Navbar */
+        .landing-header {
+            padding: 30px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-section img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+        }
+
+        .logo-section h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #f7e479);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-login {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-login:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+
+        .btn-signup {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 80px 40px;
+            position: relative;
+        }
+
+        .hero-tagline {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: #f7e479;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            animation: fadeInDown 1s ease;
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease 0.2s backwards;
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #fff, #f7e479, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 700px;
+            margin: 0 auto 50px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease 0.4s backwards;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            animation: fadeInUp 1s ease 0.6s backwards;
+        }
+
+        .cta-primary {
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #f7e479, #667eea);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(247, 228, 121, 0.5);
+        }
+
+        .cta-secondary {
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+
+        /* How It Works Section */
+        .how-it-works-section {
+            padding: 100px 60px;
+            background: transparent;
+            backdrop-filter: none;
+            position: relative;
+            z-index: 3;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 70px;
+            color: #fff;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .step-card {
+            text-align: center;
+            position: relative;
+            padding: 30px;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f7e479, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.2;
+        }
+
+        .step-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(2px 2px 10px rgba(0, 0, 0, 0.9));
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .step-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Why Choose Us Section */
+        .why-choose-section {
+            padding: 100px 60px;
+            background: transparent;
+            backdrop-filter: none;
+            position: relative;
+            z-index: 3;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .benefit-card {
+            text-align: center;
+            padding: 30px;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .benefit-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(2px 2px 10px rgba(0, 0, 0, 0.9));
+        }
+
+        .benefit-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .benefit-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 100px 60px;
+            background: transparent;
+            backdrop-filter: none;
+            position: relative;
+            z-index: 3;
+        }
+
+        .features-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 70px;
+            background: linear-gradient(135deg, #fff, #f7e479);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(2px 2px 10px rgba(0, 0, 0, 0.9));
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #f7e479, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.8));
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .feature-description {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Footer */
+        .landing-footer {
+            padding: 30px 60px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .landing-header {
+                padding: 20px 30px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .logo-section h1 {
+                font-size: 1.3rem;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .how-it-works-section,
+            .why-choose-section,
+            .features-section {
+                padding: 60px 30px;
+            }
+
+            .section-title,
+            .features-title {
+                font-size: 2rem;
+                margin-bottom: 40px;
+            }
+
+            .steps-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .step-number {
+                font-size: 3rem;
+                top: 0;
+                right: 10px;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Background -->
+    <div class="video-background">
+        <video id="bgVideo" autoplay loop muted playsinline preload="auto">
+            <source src="assets/landing page.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <!-- Main Content -->
+    <div class="landing-content">
+        <!-- Header -->
+        <header class="landing-header">
+            <div class="logo-section">
+                <img src="assets/logo.png" alt="SmartWardrobe AI Logo">
+                <h1>SmartWardrobe AI</h1>
+            </div>
+            <nav class="nav-buttons" id="nav-buttons">
+                <a href="login.html" class="nav-btn btn-login" id="login-btn">Login</a>
+                <a href="signup.html" class="nav-btn btn-signup" id="signup-btn">Get Started</a>
+                <a href="index.html" class="nav-btn btn-signup" id="dashboard-btn" style="display: none;">Go to Dashboard</a>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-tagline">The Future of Fashion</div>
+            <h1 class="hero-title">
+                <span class="gradient-text">Your Style.</span><br>
+                <span class="gradient-text">Your Intelligence.</span>
+            </h1>
+            <p class="hero-subtitle">
+                Discover the next generation of wardrobe management powered by AI. 
+                Organize, style, and optimize your fashion choices effortlessly.
+            </p>
+            <div class="hero-cta">
+                <a href="signup.html" class="cta-primary" onclick="ensureSignupFlow()">Start Free Trial</a>
+                <a href="#features" class="cta-secondary">Learn More</a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section" id="features">
+            <h2 class="features-title">Discover the Future of Fashion</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">AI-Powered Styling</h3>
+                    <p class="feature-description">
+                        Let AI analyze your wardrobe and create perfect outfit combinations for any occasion.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tshirt"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Organization</h3>
+                    <p class="feature-description">
+                        Automatically categorize and tag your clothes with intelligent wardrobe management.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Fashion Analytics</h3>
+                    <p class="feature-description">
+                        Track your style patterns, favorite items, and get insights on your wardrobe usage.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <h3 class="feature-title">Weather Integration</h3>
+                    <p class="feature-description">
+                        Get outfit suggestions based on real-time weather and your daily schedule.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3 class="feature-title">Virtual Try-On</h3>
+                    <p class="feature-description">
+                        See how clothes look on you with AI-powered virtual try-on technology.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Cross-Platform</h3>
+                    <p class="feature-description">
+                        Access your wardrobe anywhere, anytime on any device with seamless sync.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works-section" id="how-it-works">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">📸</div>
+                    <h3 class="step-title">Upload Your Wardrobe</h3>
+                    <p class="step-description">
+                        Simply take photos of your clothes or upload existing images. Our AI automatically categorizes and tags each item.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">🤖</div>
+                    <h3 class="step-title">AI Analyzes Your Style</h3>
+                    <p class="step-description">
+                        Our advanced AI learns your preferences, colors, patterns, and style habits to understand your unique fashion sense.
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">✨</div>
+                    <h3 class="step-title">Get Smart Suggestions</h3>
+                    <p class="step-description">
+                        Receive daily outfit recommendations based on weather, events, and your personal style. Never run out of ideas!
+                    </p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">📊</div>
+                    <h3 class="step-title">Track & Optimize</h3>
+                    <p class="step-description">
+                        View analytics on your wardrobe usage, discover unused items, and make smarter fashion decisions.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Choose Us Section -->
+        <section class="why-choose-section" id="why-choose">
+            <h2 class="section-title">Why Choose SmartWardrobe AI?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">⚡</div>
+                    <h3 class="benefit-title">Save Time</h3>
+                    <p class="benefit-description">
+                        Stop wasting 20+ minutes every morning deciding what to wear. Get instant outfit suggestions in seconds.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💰</div>
+                    <h3 class="benefit-title">Save Money</h3>
+                    <p class="benefit-description">
+                        Discover what you already own. Avoid buying duplicates and maximize the use of your existing wardrobe.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🌍</div>
+                    <h3 class="benefit-title">Sustainable Fashion</h3>
+                    <p class="benefit-description">
+                        Reduce waste by wearing what you have. Track usage patterns and make eco-friendly fashion choices.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎨</div>
+                    <h3 class="benefit-title">Elevate Your Style</h3>
+                    <p class="benefit-description">
+                        Discover new combinations you never thought of. AI suggests creative outfits that match your personality.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📱</div>
+                    <h3 class="benefit-title">Always Accessible</h3>
+                    <p class="benefit-description">
+                        Your entire wardrobe in your pocket. Access from anywhere, plan outfits while traveling or shopping.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔒</div>
+                    <h3 class="benefit-title">Privacy First</h3>
+                    <p class="benefit-description">
+                        Your data is encrypted and secure. We never share your wardrobe data or personal information.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <p>&copy; 2025 SmartWardrobe AI. All rights reserved. | Revolutionizing Fashion with Intelligence</p>
+        </footer>
+    </div>
+
+    <script src="users.js"></script>
+    <script>
+        // Check if user is properly authenticated
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for userDB to be fully initialized
+            const checkAuth = () => {
+                if (typeof userDB !== 'undefined' && userDB.isLoggedIn) {
+                    // Use the proper userDB authentication check
+                    if (userDB.isLoggedIn()) {
+                        // User is properly logged in - show dashboard button
+                        document.getElementById('login-btn').style.display = 'none';
+                        document.getElementById('signup-btn').style.display = 'none';
+                        document.getElementById('dashboard-btn').style.display = 'inline-block';
+                    } else {
+                        // User is not logged in - show login/signup buttons
+                        document.getElementById('login-btn').style.display = 'inline-block';
+                        document.getElementById('signup-btn').style.display = 'inline-block';
+                        document.getElementById('dashboard-btn').style.display = 'none';
+                        
+                        // Clear any invalid authentication data
+                        localStorage.removeItem('isLoggedIn');
+                        localStorage.removeItem('currentUser');
+                    }
+                } else {
+                    // userDB not ready yet, try again in 100ms
+                    setTimeout(checkAuth, 100);
+                }
+            };
+            
+            checkAuth();
+        });
+
+        // Ensure proper signup flow
+        function ensureSignupFlow() {
+            // Clear any invalid authentication data before going to signup
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            // Let the normal link behavior proceed
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Video Background Handler
+        const video = document.getElementById('bgVideo');
+        
+        if (video) {
+            // Force mute
+            video.muted = true;
+            video.volume = 0;
+            
+            // Add loaded class when video can play
+            video.addEventListener('loadeddata', function() {
+                console.log('Video loaded successfully');
+                video.classList.add('loaded');
+            });
+            
+            video.addEventListener('canplay', function() {
+                console.log('Video can play');
+                video.classList.add('loaded');
+            });
+            
+            // Handle play errors
+            video.addEventListener('error', function(e) {
+                console.error('Video error:', e);
+                console.error('Video error details:', video.error);
+            });
+            
+            // Force play on page load
+            window.addEventListener('load', function() {
+                video.play().then(function() {
+                    console.log('Video playing successfully');
+                    video.classList.add('loaded');
+                }).catch(function(error) {
+                    console.error('Autoplay prevented:', error);
+                    // Fallback: show video anyway even if not playing
+                    video.classList.add('loaded');
+                });
+            });
+            
+            // Immediate play attempt
+            setTimeout(function() {
+                video.play().then(function() {
+                    console.log('Video playing (immediate attempt)');
+                    video.classList.add('loaded');
+                }).catch(function(error) {
+                    console.log('Immediate play attempt failed, will retry on load');
+                });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Smart Wardrobe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="users.js"></script>
+    <script src="tutorial.js"></script>
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!userDB.isLoggedIn()) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</head>
+<body>
+    <aside class="app-sidebar">
+        <div class="app-header">
+            <img src="assets/logo.png" alt="Logo"/>
+            <h1 class="app-title">Smart Wardrobe</h1>
+        </div>
+        <nav class="app-nav" data-active="4">
+            <div class="nav-glider-container">
+                <div class="nav-glider"></div>
+            </div>
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i><span class="nav-link-text">Dashboard</span>
+            </a>
+            <a href="wardrobe.html" class="nav-link">
+                <i class="fas fa-tshirt"></i><span class="nav-link-text">My Wardrobe</span>
+            </a>
+            <a href="ai-stylist.html" class="nav-link">
+                <i class="fas fa-magic"></i><span class="nav-link-text">AI Outfits</span>
+            </a>
+            <a href="style-guide.html" class="nav-link">
+                <i class="fas fa-chart-bar"></i><span class="nav-link-text">Analytics</span>
+            </a>
+            <a href="ai-cloth-changer.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"></path><path d="M17 20V4"></path><path d="m3 8 4-4 4 4"></path><path d="M7 4v16"></path></svg><span class="nav-link-text">AI Cloth Changer</span>
+            </a>
+        </nav>
+        <div class="app-bottom">
+            <button id="sidebar-toggle" class="btn-sidebar-toggle">
+                <div class="button-outer">
+                    <div class="button-inner">
+                        <span class="label">Collapse</span>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <div class="app-content">
+        <header class="app-topbar">
+            <button class="settings-btn" id="settings-btn-main">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+            <button class="logout-btn" id="logout-btn-main">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </header>
+
+        <main class="settings-content">
+            <div class="settings-container">
+                <div class="settings-header">
+                    <h1 class="settings-title">Settings</h1>
+                    <p class="settings-subtitle">Manage your Smart Wardrobe preferences</p>
+                </div>
+
+                <div class="settings-sections">
+                    <!-- Profile Settings -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <i class="fas fa-user-circle"></i>
+                            <h3>🧍‍♂️ Profile Settings</h3>
+                        </div>
+                        <div class="settings-section-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>👤 Personal Information</h4>
+                                    <p>Update your name, profile picture, and bio</p>
+                                </div>
+                                <button class="btn btn-primary" id="edit-profile">
+                                    <i class="fas fa-edit"></i>
+                                    Edit Profile
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>📏 Body Measurements</h4>
+                                    <p>Help AI suggest better-fitting outfits</p>
+                                </div>
+                                <button class="btn btn-secondary" id="update-measurements">
+                                    <i class="fas fa-ruler"></i>
+                                    Update Measurements
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-setting">
+                                    <div class="setting-info">
+                                        <h4>🎨 Style Preferences</h4>
+                                        <p>AI learns my style from wardrobe choices</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ai-style-learning" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>📍 Location</h4>
+                                    <p>For weather-based outfit suggestions</p>
+                                </div>
+                                <input type="text" class="setting-input" id="location-input" placeholder="Enter your city">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Privacy & Security -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>🔐 Privacy & Security</h3>
+                        </div>
+                        <div class="settings-section-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🔑 Change Password</h4>
+                                    <p>Update your account password</p>
+                                </div>
+                                <button class="btn btn-secondary" id="change-password">
+                                    <i class="fas fa-key"></i>
+                                    Change Password
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>📧 Change Email</h4>
+                                    <p>Update your email address</p>
+                                </div>
+                                <button class="btn btn-secondary" id="change-email">
+                                    <i class="fas fa-envelope"></i>
+                                    Change Email
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🧹 Clear Saved Data</h4>
+                                    <p>Remove saved outfits and reset preferences</p>
+                                </div>
+                                <button class="btn btn-danger" id="clear-data">
+                                    <i class="fas fa-trash"></i>
+                                    Clear Data
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🗑️ Delete Account</h4>
+                                    <p>Permanently delete your account and all data</p>
+                                </div>
+                                <button class="btn btn-danger" id="delete-account">
+                                    <i class="fas fa-user-times"></i>
+                                    Delete Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI & Smart Features -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <i class="fas fa-brain"></i>
+                            <h3>🧠 AI & Smart Features</h3>
+                        </div>
+                        <div class="settings-section-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🧠 Re-train AI</h4>
+                                    <p>Re-train AI based on your current wardrobe</p>
+                                </div>
+                                <button class="btn btn-primary" id="retrain-ai">
+                                    <i class="fas fa-sync"></i>
+                                    Re-train AI
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🔄 Refresh Recommendations</h4>
+                                    <p>Get fresh outfit suggestions</p>
+                                </div>
+                                <button class="btn btn-secondary" id="refresh-recommendations">
+                                    <i class="fas fa-refresh"></i>
+                                    Refresh
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-setting">
+                                    <div class="setting-info">
+                                        <h4>🗣️ AI Voice Suggestions</h4>
+                                        <p>Enable voice-based outfit recommendations</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ai-voice">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🤖 Smart Style Learning</h4>
+                                    <p>Reset AI style preferences</p>
+                                </div>
+                                <button class="btn btn-secondary" id="reset-style">
+                                    <i class="fas fa-undo"></i>
+                                    Reset Style
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data & Storage -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <i class="fas fa-database"></i>
+                            <h3>🧾 Data & Storage</h3>
+                        </div>
+                        <div class="settings-section-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>💾 Storage Usage</h4>
+                                    <p>View your data usage and storage</p>
+                                </div>
+                                <button class="btn btn-secondary" id="view-storage">
+                                    <i class="fas fa-chart-pie"></i>
+                                    View Storage
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-setting">
+                                    <div class="setting-info">
+                                        <h4>🔄 Cloud Sync</h4>
+                                        <p>Sync with cloud storage</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="cloud-sync">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🗑️ Clear Cache</h4>
+                                    <p>Clear temporary data and cache</p>
+                                </div>
+                                <button class="btn btn-secondary" id="clear-cache">
+                                    <i class="fas fa-broom"></i>
+                                    Clear Cache
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>📤 Export Data</h4>
+                                    <p>Export your wardrobe data</p>
+                                </div>
+                                <button class="btn btn-secondary" id="export-data">
+                                    <i class="fas fa-download"></i>
+                                    Export Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Language & Region -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <i class="fas fa-globe"></i>
+                            <h3>🌍 Language & Region</h3>
+                        </div>
+                        <div class="settings-section-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🌐 Language</h4>
+                                    <p>Select your preferred language</p>
+                                </div>
+                                <select class="setting-select" id="language-select">
+                                    <option value="en">English</option>
+                                    <option value="hi">Hindi</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🌍 Region</h4>
+                                    <p>Set your region for weather data</p>
+                                </div>
+                                <select class="setting-select" id="region-select">
+                                    <option value="us">United States</option>
+                                    <option value="in">India</option>
+                                    <option value="uk">United Kingdom</option>
+                                    <option value="ca">Canada</option>
+                                    <option value="au">Australia</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Developer & About -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <i class="fas fa-code"></i>
+                            <h3>🧰 Developer & About</h3>
+                        </div>
+                        <div class="settings-section-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🧑‍💻 About Smart Wardrobe</h4>
+                                    <p>Learn more about this AI-powered wardrobe assistant</p>
+                                </div>
+                                <button class="btn btn-secondary" id="about-app">
+                                    <i class="fas fa-info-circle"></i>
+                                    About
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>🏫 Project Information</h4>
+                                    <p>Developed by: Your Name, College Name</p>
+                                </div>
+                                <div class="project-info">
+                                    <span class="version">Version 1.0.0</span>
+                                    <a href="#" class="github-link">
+                                        <i class="fab fa-github"></i>
+                                        GitHub Repository
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>💡 Feedback & Help</h4>
+                                    <p>Report bugs or get help</p>
+                                </div>
+                                <button class="btn btn-secondary" id="feedback">
+                                    <i class="fas fa-comment"></i>
+                                    Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tutorial Section -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <i class="fas fa-graduation-cap"></i>
+                            <h3>Tutorial & Help</h3>
+                        </div>
+                        <div class="settings-section-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>Interactive Tutorial</h4>
+                                    <p>Take a guided tour of Smart Wardrobe features</p>
+                                </div>
+                                <button class="btn btn-primary" id="restart-tutorial">
+                                    <i class="fas fa-play"></i>
+                                    Start Tutorial
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .settings-content {
+            padding: 32px;
+            background: #0f0f23;
+            min-height: calc(100vh - 70px);
+        }
+
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .settings-header {
+            margin-bottom: 40px;
+        }
+
+        .settings-title {
+            background: linear-gradient(135deg, #a855f7, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .settings-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .settings-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .settings-section {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .settings-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section-header i {
+            color: #a855f7;
+            font-size: 20px;
+        }
+
+        .settings-section-header h3 {
+            color: #ffffff;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .settings-section-content {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-info h4 {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+
+        .setting-info p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #a855f7, #06b6d4);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .setting-setting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .setting-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+
+        .setting-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .setting-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            width: 200px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .setting-select:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+
+        .setting-select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .project-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .version {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .github-link {
+            color: #a855f7;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            color: #06b6d4;
+            transform: translateY(-1px);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 1.3em;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .storage-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .storage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .storage-item span:first-child {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .storage-item span:last-child {
+            color: #a855f7;
+            font-weight: 600;
+        }
+
+        .about-content h3 {
+            color: #a855f7;
+            margin-bottom: 12px;
+        }
+
+        .about-content h4 {
+            color: #ffffff;
+            margin: 16px 0 8px 0;
+        }
+
+        .about-content ul {
+            color: rgba(255, 255, 255, 0.8);
+            padding-left: 20px;
+        }
+
+        .about-content li {
+            margin-bottom: 4px;
+        }
+
+        .progress-content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .progress-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(168, 85, 247, 0.3);
+            border-top: 3px solid #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .settings-btn {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 12px;
+        }
+
+        .settings-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .app-topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .settings-content {
+                padding: 20px;
+            }
+            
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restart tutorial functionality
+            document.getElementById('restart-tutorial').addEventListener('click', function() {
+                console.log('🎯 Start Tutorial button clicked');
+                
+                // Clear user-specific tutorial completion status
+                if (typeof userDB !== 'undefined') {
+                    userDB.clearUserData('tutorialCompleted');
+                    console.log('✅ Tutorial status cleared for user:', userDB.currentUser?.username);
+                }
+                
+                // Show confirmation message
+                if (confirm('Tutorial will start on the dashboard. Continue?')) {
+                    // Redirect to dashboard to start tutorial
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Profile Settings
+            document.getElementById('edit-profile').addEventListener('click', function() {
+                const currentUser = userDB.currentUser;
+                showModal('Edit Profile', `
+                    <div class="profile-form">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="profile-name" placeholder="Enter your name" value="${currentUser ? currentUser.name || '' : ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Bio</label>
+                            <textarea id="profile-bio" placeholder="Tell us about yourself">${currentUser ? currentUser.bio || '' : ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Profile Picture</label>
+                            <input type="file" id="profile-picture" accept="image/*">
+                        </div>
+                    </div>
+                `, 'Save Changes', function() {
+                    const name = document.getElementById('profile-name').value;
+                    const bio = document.getElementById('profile-bio').value;
+                    const picture = document.getElementById('profile-picture').files[0];
+                    
+                    if (name.trim()) {
+                        // Update user data properly
+                        if (typeof userDB !== 'undefined' && userDB.currentUser) {
+                            // Update the current user object
+                            userDB.currentUser.name = name;
+                            userDB.currentUser.bio = bio;
+                            
+                            // Save the updated user to the main users database
+                            userDB.updateUser(userDB.currentUser);
+                            
+                            // Also save profile data separately for easy access
+                            userDB.saveUserData('profile', {
+                                name: name,
+                                bio: bio,
+                                lastUpdated: new Date().toISOString()
+                            });
+                            
+                            // Update localStorage for immediate reflection
+                            localStorage.setItem('currentUser', JSON.stringify(userDB.currentUser));
+                            
+                            console.log('✅ Profile updated successfully:', userDB.currentUser);
+                        }
+                        alert('Profile updated successfully! Changes will be reflected across all pages.');
+                    } else {
+                        alert('Please enter a valid name.');
+                    }
+                });
+            });
+
+            document.getElementById('update-measurements').addEventListener('click', function() {
+                const measurements = userDB.loadUserData('measurements', {});
+                showModal('Body Measurements', `
+                    <div class="measurements-form">
+                        <div class="form-group">
+                            <label>Height (cm)</label>
+                            <input type="number" id="height" placeholder="170" value="${measurements.height || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="weight" placeholder="70" value="${measurements.weight || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Chest Size (cm)</label>
+                            <input type="number" id="chest" placeholder="90" value="${measurements.chest || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Waist Size (cm)</label>
+                            <input type="number" id="waist" placeholder="80" value="${measurements.waist || ''}">
+                        </div>
+                    </div>
+                `, 'Save Measurements', function() {
+                    const measurements = {
+                        height: parseInt(document.getElementById('height').value) || 0,
+                        weight: parseInt(document.getElementById('weight').value) || 0,
+                        chest: parseInt(document.getElementById('chest').value) || 0,
+                        waist: parseInt(document.getElementById('waist').value) || 0
+                    };
+                    
+                    userDB.saveUserData('measurements', measurements);
+                    alert('Measurements saved successfully!');
+                });
+            });
+
+            // Privacy & Security
+            document.getElementById('change-password').addEventListener('click', function() {
+                showModal('Change Password', `
+                    <div class="password-form">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="current-password" placeholder="Enter current password">
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="new-password" placeholder="Enter new password">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" id="confirm-password" placeholder="Confirm new password">
+                        </div>
+                    </div>
+                `, 'Change Password', function() {
+                    const currentPassword = document.getElementById('current-password').value;
+                    const newPassword = document.getElementById('new-password').value;
+                    const confirmPassword = document.getElementById('confirm-password').value;
+                    
+                    if (!currentPassword || !newPassword || !confirmPassword) {
+                        alert('Please fill in all fields.');
+                        return;
+                    }
+                    
+                    if (newPassword !== confirmPassword) {
+                        alert('New passwords do not match.');
+                        return;
+                    }
+                    
+                    if (newPassword.length < 6) {
+                        alert('Password must be at least 6 characters long.');
+                        return;
+                    }
+                    
+                    // In a real app, you'd verify the current password here
+                    // For now, we'll just update the password in the user data
+                    if (typeof userDB !== 'undefined' && userDB.currentUser) {
+                        userDB.currentUser.password = newPassword; // In real app, this would be hashed
+                        userDB.updateUser(userDB.currentUser);
+                        localStorage.setItem('currentUser', JSON.stringify(userDB.currentUser));
+                        console.log('✅ Password updated successfully');
+                    }
+                    alert('Password changed successfully! Changes will be reflected across all pages.');
+                });
+            });
+
+            document.getElementById('change-email').addEventListener('click', function() {
+                const currentUser = userDB.currentUser;
+                showModal('Change Email', `
+                    <div class="email-form">
+                        <div class="form-group">
+                            <label>Current Email</label>
+                            <input type="email" id="current-email" placeholder="current@email.com" value="${currentUser ? currentUser.email || '' : ''}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>New Email</label>
+                            <input type="email" id="new-email" placeholder="new@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Email</label>
+                            <input type="email" id="confirm-email" placeholder="new@email.com">
+                        </div>
+                    </div>
+                `, 'Change Email', function() {
+                    const newEmail = document.getElementById('new-email').value;
+                    const confirmEmail = document.getElementById('confirm-email').value;
+                    
+                    if (!newEmail || !confirmEmail) {
+                        alert('Please fill in all fields.');
+                        return;
+                    }
+                    
+                    if (newEmail !== confirmEmail) {
+                        alert('Email addresses do not match.');
+                        return;
+                    }
+                    
+                    if (!isValidEmail(newEmail)) {
+                        alert('Please enter a valid email address.');
+                        return;
+                    }
+                    
+                    // Update user email
+                    if (typeof userDB !== 'undefined' && userDB.currentUser) {
+                        userDB.currentUser.email = newEmail;
+                        userDB.updateUser(userDB.currentUser);
+                        localStorage.setItem('currentUser', JSON.stringify(userDB.currentUser));
+                        console.log('✅ Email updated successfully:', userDB.currentUser);
+                    }
+                    alert('Email changed successfully! Changes will be reflected across all pages.');
+                });
+            });
+
+            document.getElementById('clear-data').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all saved data? This action cannot be undone.')) {
+                    if (confirm('This will delete all your saved outfits, preferences, and wardrobe data. Continue?')) {
+                        // Clear user-specific data
+                        if (typeof userDB !== 'undefined') {
+                            userDB.clearAllUserData();
+                        }
+                        alert('All data has been cleared successfully!');
+                        location.reload();
+                    }
+                }
+            });
+
+            document.getElementById('delete-account').addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                    if (confirm('This will permanently delete your account and all associated data. Continue?')) {
+                        if (confirm('Last chance! This will delete everything. Are you absolutely sure?')) {
+                            // Delete account logic
+                            alert('Account deletion initiated. Please contact support for final confirmation.');
+                        }
+                    }
+                }
+            });
+
+            // AI & Smart Features
+            document.getElementById('retrain-ai').addEventListener('click', function() {
+                if (confirm('Re-train AI based on your current wardrobe? This may take a few minutes.')) {
+                    showProgressModal('Re-training AI', 'Analyzing your wardrobe and updating AI recommendations...');
+                    
+                    // Simulate AI retraining process
+                    setTimeout(() => {
+                        // Clear old AI data
+                        userDB.clearUserData('aiRecommendations');
+                        userDB.clearUserData('aiStyleProfile');
+                        
+                        // Generate new AI profile based on current wardrobe
+                        const wardrobeItems = userDB.loadUserData('wardrobeItems', []);
+                        const savedOutfits = userDB.loadUserData('savedOutfits', []);
+                        
+                        // Create AI style profile
+                        const aiProfile = {
+                            colorPreferences: {},
+                            categoryPreferences: {},
+                            stylePatterns: {},
+                            lastTrained: new Date().toISOString(),
+                            wardrobeSize: wardrobeItems.length,
+                            outfitCount: savedOutfits.length
+                        };
+                        
+                        // Analyze wardrobe for AI learning
+                        wardrobeItems.forEach(item => {
+                            // Color analysis
+                            aiProfile.colorPreferences[item.color] = (aiProfile.colorPreferences[item.color] || 0) + 1;
+                            // Category analysis
+                            aiProfile.categoryPreferences[item.category] = (aiProfile.categoryPreferences[item.category] || 0) + 1;
+                        });
+                        
+                        // Save AI profile
+                        userDB.saveUserData('aiStyleProfile', aiProfile);
+                        
+                        hideProgressModal();
+                        alert('AI has been successfully re-trained with your current wardrobe! New recommendations will be available.');
+                        console.log('✅ AI retrained with profile:', aiProfile);
+                    }, 3000);
+                }
+            });
+
+            document.getElementById('refresh-recommendations').addEventListener('click', function() {
+                showProgressModal('Refreshing Recommendations', 'Generating fresh outfit suggestions...');
+                
+                setTimeout(() => {
+                    // Clear old recommendations
+                    userDB.clearUserData('cachedRecommendations');
+                    userDB.clearUserData('outfitSuggestions');
+                    
+                    // Generate new recommendations based on current wardrobe
+                    const wardrobeItems = userDB.loadUserData('wardrobeItems', []);
+                    const aiProfile = userDB.loadUserData('aiStyleProfile', {});
+                    
+                    // Create fresh recommendations
+                    const recommendations = {
+                        generatedAt: new Date().toISOString(),
+                        outfitCount: Math.min(5, Math.floor(wardrobeItems.length / 3)),
+                        basedOnItems: wardrobeItems.length,
+                        aiProfileUsed: Object.keys(aiProfile).length > 0
+                    };
+                    
+                    userDB.saveUserData('outfitSuggestions', recommendations);
+                    
+                    hideProgressModal();
+                    alert('Recommendations have been refreshed! Check your dashboard for new suggestions.');
+                    console.log('✅ Recommendations refreshed:', recommendations);
+                }, 2000);
+            });
+
+            document.getElementById('reset-style').addEventListener('click', function() {
+                if (confirm('Reset AI style preferences? This will clear all learned style patterns.')) {
+                    showProgressModal('Resetting Style', 'Clearing AI style preferences...');
+                    
+                    setTimeout(() => {
+                        // Clear all AI-related data
+                        userDB.clearUserData('aiStyleProfile');
+                        userDB.clearUserData('aiRecommendations');
+                        userDB.clearUserData('outfitSuggestions');
+                        userDB.clearUserData('cachedRecommendations');
+                        userDB.clearUserData('stylePreferences');
+                        
+                        // Reset AI learning settings
+                        userDB.saveUserData('aiStyleLearning', true);
+                        
+                        hideProgressModal();
+                        alert('Style preferences have been reset! AI will learn from scratch.');
+                        console.log('✅ AI style preferences reset');
+                    }, 1500);
+                }
+            });
+
+            // Data & Storage
+            document.getElementById('view-storage').addEventListener('click', function() {
+                const wardrobeItems = userDB.loadUserData('wardrobeItems', []);
+                const savedOutfits = userDB.loadUserData('savedOutfits', []);
+                const measurements = userDB.loadUserData('measurements', {});
+                const profile = userDB.loadUserData('profile', {});
+                
+                // Calculate approximate storage usage
+                const wardrobeSize = JSON.stringify(wardrobeItems).length;
+                const outfitsSize = JSON.stringify(savedOutfits).length;
+                const measurementsSize = JSON.stringify(measurements).length;
+                const profileSize = JSON.stringify(profile).length;
+                const totalSize = wardrobeSize + outfitsSize + measurementsSize + profileSize;
+                
+                const sizeInKB = Math.round(totalSize / 1024 * 100) / 100;
+                const sizeInMB = Math.round(sizeInKB / 1024 * 100) / 100;
+                
+                showModal('Storage Usage', `
+                    <div class="storage-info">
+                        <div class="storage-item">
+                            <span>Wardrobe Items:</span>
+                            <span id="wardrobe-count">${wardrobeItems.length} items</span>
+                        </div>
+                        <div class="storage-item">
+                            <span>Saved Outfits:</span>
+                            <span id="outfits-count">${savedOutfits.length} outfits</span>
+                        </div>
+                        <div class="storage-item">
+                            <span>Storage Used:</span>
+                            <span id="storage-used">${sizeInMB > 1 ? sizeInMB + ' MB' : sizeInKB + ' KB'}</span>
+                        </div>
+                        <div class="storage-item">
+                            <span>Available Space:</span>
+                            <span id="storage-available">Unlimited</span>
+                        </div>
+                    </div>
+                `, 'Close');
+            });
+
+            document.getElementById('clear-cache').addEventListener('click', function() {
+                if (confirm('Clear cache and temporary data?')) {
+                    showProgressModal('Clearing Cache', 'Removing temporary files and cache...');
+                    
+                    setTimeout(() => {
+                        // Clear temporary data
+                        userDB.clearUserData('cachedRecommendations');
+                        userDB.clearUserData('tempOutfits');
+                        userDB.clearUserData('sessionData');
+                        
+                        // Clear browser cache (simulated)
+                        if ('caches' in window) {
+                            caches.keys().then(names => {
+                                names.forEach(name => {
+                                    caches.delete(name);
+                                });
+                            });
+                        }
+                        
+                        hideProgressModal();
+                        alert('Cache cleared successfully! Temporary data has been removed.');
+                        console.log('✅ Cache cleared');
+                    }, 1000);
+                }
+            });
+
+            document.getElementById('export-data').addEventListener('click', function() {
+                if (confirm('Export your wardrobe data? This will download a JSON file.')) {
+                    showProgressModal('Exporting Data', 'Preparing your wardrobe data for download...');
+                    setTimeout(() => {
+                        hideProgressModal();
+                        // Create and download JSON file
+                        const data = {
+                            wardrobe: userDB.loadUserData('wardrobeItems', []),
+                            outfits: userDB.loadUserData('savedOutfits', []),
+                            exportDate: new Date().toISOString()
+                        };
+                        downloadJSON(data, 'smart-wardrobe-data.json');
+                        alert('Data exported successfully!');
+                    }, 2000);
+                }
+            });
+
+            // Developer & About
+            document.getElementById('about-app').addEventListener('click', function() {
+                showModal('About Smart Wardrobe', `
+                    <div class="about-content">
+                        <h3>🧑‍💻 Smart Wardrobe</h3>
+                        <p>An AI-powered wardrobe assistant that helps you look amazing every day!</p>
+                        <h4>Features:</h4>
+                        <ul>
+                            <li>AI-powered outfit recommendations</li>
+                            <li>Weather-based clothing suggestions</li>
+                            <li>Virtual wardrobe management</li>
+                            <li>Style analytics and insights</li>
+                            <li>Smart learning from your preferences</li>
+                        </ul>
+                        <h4>Technology:</h4>
+                        <p>Built with modern web technologies including AI/ML integration for personalized recommendations.</p>
+                    </div>
+                `, 'Close');
+            });
+
+            document.getElementById('feedback').addEventListener('click', function() {
+                showModal('Feedback & Help', `
+                    <div class="feedback-form">
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="feedback-subject">
+                                <option value="bug">Bug Report</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="help">Help Request</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea id="feedback-message" placeholder="Describe your feedback or issue..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Email (optional)</label>
+                            <input type="email" id="feedback-email" placeholder="your@email.com">
+                        </div>
+                    </div>
+                `, 'Send Feedback', function() {
+                    const subject = document.getElementById('feedback-subject').value;
+                    const message = document.getElementById('feedback-message').value;
+                    const email = document.getElementById('feedback-email').value;
+                    
+                    if (!message.trim()) {
+                        alert('Please enter a message.');
+                        return;
+                    }
+                    
+                    if (email && !isValidEmail(email)) {
+                        alert('Please enter a valid email address.');
+                        return;
+                    }
+                    
+                    // In a real app, you'd send this to a server
+                    const feedback = {
+                        subject: subject,
+                        message: message,
+                        email: email,
+                        timestamp: new Date().toISOString(),
+                        user: userDB.currentUser ? userDB.currentUser.username : 'Anonymous'
+                    };
+                    
+                    console.log('Feedback submitted:', feedback);
+                    alert('Thank you for your feedback! We\'ll review it and get back to you if needed.');
+                });
+            });
+
+            // Logout functionality
+            document.getElementById('logout-btn-main').addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    userDB.logout();
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Settings button functionality (since we're already on settings page)
+            document.getElementById('settings-btn-main').addEventListener('click', function() {
+                // Scroll to top of settings page
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Utility Functions
+            function showModal(title, content, buttonText, onConfirm) {
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>${title}</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            ${content}
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary modal-cancel">Cancel</button>
+                            <button class="btn btn-primary modal-confirm">${buttonText}</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                // Event listeners
+                modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+                modal.querySelector('.modal-cancel').addEventListener('click', () => modal.remove());
+                modal.querySelector('.modal-confirm').addEventListener('click', () => {
+                    if (onConfirm && typeof onConfirm === 'function') {
+                        onConfirm();
+                    }
+                    modal.remove();
+                });
+            }
+
+            function showProgressModal(title, message) {
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.id = 'progress-modal';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>${title}</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="progress-content">
+                                <div class="progress-spinner"></div>
+                                <p>${message}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+
+            function hideProgressModal() {
+                const modal = document.getElementById('progress-modal');
+                if (modal) modal.remove();
+            }
+
+            function downloadJSON(data, filename) {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+
+            // Initialize settings on page load
+            function initializeSettings() {
+                // Load saved settings
+                const location = userDB.loadUserData('location', '');
+                const language = userDB.loadUserData('language', 'en');
+                const region = userDB.loadUserData('region', 'us');
+                const aiStyleLearning = userDB.loadUserData('aiStyleLearning', true);
+                const aiVoice = userDB.loadUserData('aiVoice', false);
+                const cloudSync = userDB.loadUserData('cloudSync', false);
+
+                // Set form values
+                if (document.getElementById('location-input')) {
+                    document.getElementById('location-input').value = location;
+                }
+                if (document.getElementById('language-select')) {
+                    document.getElementById('language-select').value = language;
+                }
+                if (document.getElementById('region-select')) {
+                    document.getElementById('region-select').value = region;
+                }
+                if (document.getElementById('ai-style-learning')) {
+                    document.getElementById('ai-style-learning').checked = aiStyleLearning;
+                }
+                if (document.getElementById('ai-voice')) {
+                    document.getElementById('ai-voice').checked = aiVoice;
+                }
+                if (document.getElementById('cloud-sync')) {
+                    document.getElementById('cloud-sync').checked = cloudSync;
+                }
+
+                // Add event listeners for settings changes
+                if (document.getElementById('location-input')) {
+                    document.getElementById('location-input').addEventListener('change', function() {
+                        userDB.saveUserData('location', this.value);
+                        console.log('✅ Location updated:', this.value);
+                    });
+                    
+                    // Also save on input (real-time)
+                    document.getElementById('location-input').addEventListener('input', function() {
+                        userDB.saveUserData('location', this.value);
+                    });
+                }
+                if (document.getElementById('language-select')) {
+                    document.getElementById('language-select').addEventListener('change', function() {
+                        userDB.saveUserData('language', this.value);
+                        console.log('✅ Language changed to:', this.value);
+                        
+                        // Show feedback
+                        const languages = {
+                            'en': 'English',
+                            'hi': 'Hindi',
+                            'es': 'Spanish',
+                            'fr': 'French',
+                            'de': 'German'
+                        };
+                        
+                        const message = `Language changed to ${languages[this.value]}! This will affect the interface language.`;
+                        
+                        // Create temporary notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
+                            position: fixed; top: 20px; right: 20px; z-index: 10000;
+                            background: linear-gradient(135deg, #f59e0b, #d97706);
+                            color: white; padding: 12px 20px; border-radius: 8px;
+                            font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            animation: slideIn 0.3s ease;
+                        `;
+                        notification.textContent = message;
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => notification.remove(), 3000);
+                    });
+                }
+                if (document.getElementById('region-select')) {
+                    document.getElementById('region-select').addEventListener('change', function() {
+                        userDB.saveUserData('region', this.value);
+                        console.log('✅ Region changed to:', this.value);
+                        
+                        // Show feedback
+                        const regions = {
+                            'us': 'United States',
+                            'in': 'India',
+                            'uk': 'United Kingdom',
+                            'ca': 'Canada',
+                            'au': 'Australia'
+                        };
+                        
+                        const message = `Region changed to ${regions[this.value]}! Weather data will be based on this region.`;
+                        
+                        // Create temporary notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
+                            position: fixed; top: 20px; right: 20px; z-index: 10000;
+                            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                            color: white; padding: 12px 20px; border-radius: 8px;
+                            font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            animation: slideIn 0.3s ease;
+                        `;
+                        notification.textContent = message;
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => notification.remove(), 3000);
+                    });
+                }
+                if (document.getElementById('ai-style-learning')) {
+                    document.getElementById('ai-style-learning').addEventListener('change', function() {
+                        userDB.saveUserData('aiStyleLearning', this.checked);
+                        console.log('✅ AI Style Learning:', this.checked ? 'Enabled' : 'Disabled');
+                        
+                        // Show feedback
+                        const status = this.checked ? 'enabled' : 'disabled';
+                        const message = `AI Style Learning ${status}! The AI will ${this.checked ? 'learn from' : 'stop learning from'} your wardrobe choices.`;
+                        
+                        // Create temporary notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
+                            position: fixed; top: 20px; right: 20px; z-index: 10000;
+                            background: linear-gradient(135deg, #a855f7, #06b6d4);
+                            color: white; padding: 12px 20px; border-radius: 8px;
+                            font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            animation: slideIn 0.3s ease;
+                        `;
+                        notification.textContent = message;
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => notification.remove(), 3000);
+                    });
+                }
+                if (document.getElementById('ai-voice')) {
+                    document.getElementById('ai-voice').addEventListener('change', function() {
+                        userDB.saveUserData('aiVoice', this.checked);
+                        console.log('✅ AI Voice:', this.checked ? 'Enabled' : 'Disabled');
+                        
+                        // Show feedback
+                        const status = this.checked ? 'enabled' : 'disabled';
+                        const message = `AI Voice Suggestions ${status}! ${this.checked ? 'Voice recommendations are now active.' : 'Voice recommendations are disabled.'}`;
+                        
+                        // Create temporary notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
+                            position: fixed; top: 20px; right: 20px; z-index: 10000;
+                            background: linear-gradient(135deg, #06b6d4, #0891b2);
+                            color: white; padding: 12px 20px; border-radius: 8px;
+                            font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            animation: slideIn 0.3s ease;
+                        `;
+                        notification.textContent = message;
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => notification.remove(), 3000);
+                    });
+                }
+                if (document.getElementById('cloud-sync')) {
+                    document.getElementById('cloud-sync').addEventListener('change', function() {
+                        userDB.saveUserData('cloudSync', this.checked);
+                        console.log('✅ Cloud Sync:', this.checked ? 'Enabled' : 'Disabled');
+                        
+                        // Show feedback
+                        const status = this.checked ? 'enabled' : 'disabled';
+                        const message = `Cloud Sync ${status}! ${this.checked ? 'Your data will sync across devices.' : 'Data will be stored locally only.'}`;
+                        
+                        // Create temporary notification
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
+                            position: fixed; top: 20px; right: 20px; z-index: 10000;
+                            background: linear-gradient(135deg, #10b981, #059669);
+                            color: white; padding: 12px 20px; border-radius: 8px;
+                            font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            animation: slideIn 0.3s ease;
+                        `;
+                        notification.textContent = message;
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => notification.remove(), 3000);
+                    });
+                }
+            }
+
+            // Initialize settings when page loads
+            initializeSettings();
+        });
+    </script>
+</body>
+</html>

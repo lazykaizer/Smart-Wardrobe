@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Stylist - Smart Wardrobe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="users.js"></script>
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!userDB.isLoggedIn()) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</head>
+<body>
+
+    <aside class="app-sidebar">
+        <div class="app-header">
+            <img src="assets/logo.png" alt="Logo"/>
+            <h1 class="app-title">Smart Wardrobe</h1>
+        </div>
+        <nav class="app-nav" data-active="5">
+            <div class="nav-glider-container">
+                <div class="nav-glider"></div>
+            </div>
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i><span class="nav-link-text">Welcome</span>
+            </a>
+            <a href="wardrobe.html" class="nav-link">
+                <i class="fas fa-tshirt"></i><span class="nav-link-text">My Wardrobe</span>
+            </a>
+            <a href="ai-stylist.html" class="nav-link">
+                <i class="fas fa-magic"></i><span class="nav-link-text">AI Outfits</span>
+            </a>
+            <a href="style-guide.html" class="nav-link">
+                <i class="fas fa-chart-bar"></i><span class="nav-link-text">Analytics</span>
+            </a>
+            <a href="ai-cloth-changer.html" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"></path><path d="M17 20V4"></path><path d="m3 8 4-4 4 4"></path><path d="M7 4v16"></path></svg><span class="nav-link-text">AI Cloth Changer</span>
+            </a>
+            <a href="weather-stylist.html" class="nav-link active">
+                <i class="fas fa-cloud-sun"></i><span class="nav-link-text">Weather Stylist</span>
+            </a>
+        </nav>
+        <div class="app-bottom">
+            <button id="sidebar-toggle" class="btn-sidebar-toggle">
+                <div class="button-outer">
+                    <div class="button-inner">
+                        <span class="label">Collapse</span>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <div class="app-content">
+        <header class="app-topbar">
+            <button class="logout-btn" id="logout-btn-main">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </header>
+
+        <main class="weather-content">
+            <style>
+                .weather-content {
+                    padding: 24px;
+                    background: #0f0f23;
+                    min-height: 100vh;
+                }
+
+                .weather-header {
+                    text-align: center;
+                    margin-bottom: 40px;
+                    animation: fadeInDown 0.6s ease;
+                }
+
+                .weather-header h1 {
+                    font-size: 2.5em;
+                    font-weight: 700;
+                    margin-bottom: 8px;
+                    background: linear-gradient(135deg, #fff, #a8edea);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+
+                .weather-header p {
+                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 1.1em;
+                }
+
+                .search-card {
+                    max-width: 600px;
+                    margin: 0 auto 40px;
+                    background: rgba(255, 255, 255, 0.04);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 16px;
+                    padding: 32px;
+                    animation: fadeIn 0.8s ease;
+                }
+
+                .search-group {
+                    display: flex;
+                    gap: 12px;
+                    margin-bottom: 16px;
+                }
+
+                .city-input {
+                    flex: 1;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: #fff;
+                    padding: 14px 20px;
+                    border-radius: 12px;
+                    font-size: 1em;
+                    transition: all 0.3s;
+                }
+
+                .city-input:focus {
+                    outline: none;
+                    background: rgba(255, 255, 255, 0.15);
+                    border-color: #7c3aed;
+                    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+                }
+
+                .city-input::placeholder {
+                    color: rgba(255, 255, 255, 0.5);
+                }
+
+                .search-btn {
+                    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+                    border: none;
+                    color: white;
+                    padding: 14px 32px;
+                    border-radius: 12px;
+                    font-size: 1em;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .search-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+                }
+
+                .search-btn:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                    transform: none;
+                }
+
+                .quick-cities {
+                    display: flex;
+                    gap: 8px;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+
+                .quick-city {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: #fff;
+                    padding: 6px 16px;
+                    border-radius: 20px;
+                    font-size: 0.9em;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+
+                .quick-city:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                    transform: translateY(-2px);
+                }
+
+                .results-container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    opacity: 0;
+                    transform: translateY(20px);
+                    transition: all 0.6s ease;
+                }
+
+                .results-container.show {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+                .weather-display {
+                    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.1));
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    border-radius: 20px;
+                    padding: 40px;
+                    text-align: center;
+                    margin-bottom: 32px;
+                }
+
+                .weather-emoji {
+                    font-size: 5em;
+                    margin-bottom: 16px;
+                }
+
+                .weather-city {
+                    font-size: 2em;
+                    font-weight: 600;
+                    color: #fff;
+                    margin-bottom: 8px;
+                }
+
+                .weather-temp {
+                    font-size: 3.5em;
+                    font-weight: 700;
+                    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    margin-bottom: 8px;
+                }
+
+                .weather-condition {
+                    font-size: 1.3em;
+                    color: rgba(255, 255, 255, 0.9);
+                    margin-bottom: 24px;
+                }
+
+                .weather-details {
+                    display: flex;
+                    justify-content: center;
+                    gap: 32px;
+                    flex-wrap: wrap;
+                }
+
+                .weather-detail {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .weather-detail i {
+                    font-size: 1.5em;
+                    color: #7c3aed;
+                }
+
+                .weather-detail-label {
+                    color: rgba(255, 255, 255, 0.6);
+                    font-size: 0.9em;
+                }
+
+                .weather-detail-value {
+                    color: #fff;
+                    font-weight: 600;
+                    font-size: 1.1em;
+                }
+
+                .suggestions-section {
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 20px;
+                    padding: 32px;
+                    margin-bottom: 24px;
+                }
+
+                .suggestions-section h2 {
+                    color: #fff;
+                    font-size: 1.8em;
+                    margin-bottom: 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .suggestion-item {
+                    background: rgba(124, 58, 237, 0.1);
+                    border-left: 4px solid #7c3aed;
+                    padding: 16px 20px;
+                    border-radius: 8px;
+                    margin-bottom: 12px;
+                    color: rgba(255, 255, 255, 0.95);
+                    font-size: 1.05em;
+                }
+
+                .outfit-items {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                    gap: 16px;
+                }
+
+                .outfit-item {
+                    background: rgba(255, 255, 255, 0.06);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    padding: 20px;
+                    text-align: center;
+                    transition: all 0.3s;
+                    animation: fadeInUp 0.6s ease;
+                }
+
+                .outfit-item:hover {
+                    transform: translateY(-4px);
+                    background: rgba(255, 255, 255, 0.1);
+                    border-color: #7c3aed;
+                }
+
+                .outfit-item-icon {
+                    font-size: 2.5em;
+                    margin-bottom: 12px;
+                }
+
+                .outfit-item-name {
+                    color: #fff;
+                    font-weight: 500;
+                }
+
+                .error-message {
+                    background: rgba(239, 68, 68, 0.1);
+                    border: 1px solid rgba(239, 68, 68, 0.3);
+                    border-radius: 12px;
+                    padding: 20px;
+                    color: #fca5a5;
+                    text-align: center;
+                    max-width: 600px;
+                    margin: 40px auto;
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                @keyframes fadeInDown {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                .loading {
+                    text-align: center;
+                    padding: 40px;
+                }
+
+                .spinner {
+                    border: 4px solid rgba(255, 255, 255, 0.1);
+                    border-top: 4px solid #7c3aed;
+                    border-radius: 50%;
+                    width: 50px;
+                    height: 50px;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 16px;
+                }
+
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+
+            <div class="weather-header">
+                <h1><i class="fas fa-cloud-sun"></i> Weather Stylist</h1>
+                <p>Get AI-powered outfit suggestions based on real-time weather</p>
+            </div>
+
+            <div class="search-card">
+                <div class="search-group">
+                    <input 
+                        type="text" 
+                        id="cityInput" 
+                        class="city-input" 
+                        placeholder="Enter your city (e.g., London, New York, Tokyo)"
+                        autocomplete="off"
+                    />
+                    <button id="searchBtn" class="search-btn">
+                        <i class="fas fa-search"></i>
+                        <span>Get Suggestions</span>
+                    </button>
+                </div>
+                <div class="quick-cities">
+                    <span style="color: rgba(255,255,255,0.6); font-size: 0.9em; margin-right: 8px;">Quick:</span>
+                    <button class="quick-city" data-city="London">London</button>
+                    <button class="quick-city" data-city="New York">New York</button>
+                    <button class="quick-city" data-city="Tokyo">Tokyo</button>
+                    <button class="quick-city" data-city="Paris">Paris</button>
+                    <button class="quick-city" data-city="Dubai">Dubai</button>
+                </div>
+            </div>
+
+            <div id="resultsContainer" class="results-container"></div>
+
+            <script>
+                const cityInput = document.getElementById('cityInput');
+                const searchBtn = document.getElementById('searchBtn');
+                const resultsContainer = document.getElementById('resultsContainer');
+
+                // Quick city buttons
+                document.querySelectorAll('.quick-city').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        cityInput.value = btn.dataset.city;
+                        getWeatherSuggestions();
+                    });
+                });
+
+                // Enter key press
+                cityInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        getWeatherSuggestions();
+                    }
+                });
+
+                // Search button click
+                searchBtn.addEventListener('click', getWeatherSuggestions);
+
+                async function getWeatherSuggestions() {
+                    const city = cityInput.value.trim();
+
+                    if (!city) {
+                        alert('Please enter a city name');
+                        return;
+                    }
+
+                    // Show loading
+                    searchBtn.disabled = true;
+                    resultsContainer.innerHTML = `
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p style="color: rgba(255,255,255,0.8);">Fetching weather data and generating outfit suggestions...</p>
+                        </div>
+                    `;
+                    resultsContainer.classList.add('show');
+
+                    try {
+                        const response = await fetch('http://localhost:5000/api/weather/suggest', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ city })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            displayResults(data);
+                        } else {
+                            showError(data.error);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showError('Failed to connect to the server. Make sure Flask is running.');
+                    } finally {
+                        searchBtn.disabled = false;
+                    }
+                }
+
+                function displayResults(data) {
+                    const { city, weather, suggestions, outfit_items, emoji } = data;
+
+                    resultsContainer.innerHTML = `
+                        <div class="weather-display">
+                            <div class="weather-emoji">${emoji}</div>
+                            <div class="weather-city">${city}</div>
+                            <div class="weather-temp">${weather.temperature}°C</div>
+                            <div class="weather-condition">${weather.description}</div>
+                            <div class="weather-details">
+                                <div class="weather-detail">
+                                    <i class="fas fa-temperature-half"></i>
+                                    <span class="weather-detail-label">Feels Like</span>
+                                    <span class="weather-detail-value">${weather.feels_like}°C</span>
+                                </div>
+                                <div class="weather-detail">
+                                    <i class="fas fa-droplet"></i>
+                                    <span class="weather-detail-label">Humidity</span>
+                                    <span class="weather-detail-value">${weather.humidity}%</span>
+                                </div>
+                                <div class="weather-detail">
+                                    <i class="fas fa-wind"></i>
+                                    <span class="weather-detail-label">Wind Speed</span>
+                                    <span class="weather-detail-value">${weather.wind_speed} m/s</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="suggestions-section">
+                            <h2><i class="fas fa-lightbulb"></i> AI Recommendations</h2>
+                            ${suggestions.map(s => `<div class="suggestion-item">${s}</div>`).join('')}
+                        </div>
+
+                        <div class="suggestions-section">
+                            <h2><i class="fas fa-tshirt"></i> Recommended Outfit Items</h2>
+                            <div class="outfit-items">
+                                ${outfit_items.map(item => `
+                                    <div class="outfit-item">
+                                        <div class="outfit-item-icon">${getItemIcon(item)}</div>
+                                        <div class="outfit-item-name">${item}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                function showError(message) {
+                    resultsContainer.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2em; margin-bottom: 12px;"></i>
+                            <div style="font-size: 1.1em; font-weight: 600; margin-bottom: 8px;">Error</div>
+                            <div>${message}</div>
+                        </div>
+                    `;
+                }
+
+                function getItemIcon(itemName) {
+                    const name = itemName.toLowerCase();
+                    if (name.includes('jacket') || name.includes('coat')) return '🧥';
+                    if (name.includes('shirt') || name.includes('t-shirt') || name.includes('top') || name.includes('tank')) return '👕';
+                    if (name.includes('sweater') || name.includes('hoodie') || name.includes('cardigan')) return '🧶';
+                    if (name.includes('pants') || name.includes('jeans')) return '👖';
+                    if (name.includes('shorts')) return '🩳';
+                    if (name.includes('dress')) return '👗';
+                    if (name.includes('shoes') || name.includes('sneakers')) return '👟';
+                    if (name.includes('boots')) return '👢';
+                    if (name.includes('sandals')) return '👡';
+                    if (name.includes('scarf')) return '🧣';
+                    if (name.includes('gloves')) return '🧤';
+                    if (name.includes('hat') || name.includes('cap')) return '🧢';
+                    if (name.includes('sunglasses')) return '🕶️';
+                    if (name.includes('umbrella')) return '☂️';
+                    return '👔';
+                }
+
+                // Logout functionality
+                document.getElementById('logout-btn-main').addEventListener('click', function() {
+                    if (confirm('Are you sure you want to logout?')) {
+                        userDB.logoutUser();
+                        sessionStorage.clear();
+                        localStorage.removeItem('isLoggedIn');
+                        window.location.href = 'landing.html';
+                    }
+                });
+            </script>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
