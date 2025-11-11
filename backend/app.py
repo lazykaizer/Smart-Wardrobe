@@ -28,7 +28,7 @@ CORS(app)  # Enable CORS for all routes to allow cross-origin requests
 # MongoDB Connection
 try: # Try to establish MongoDB connection
     # Your MongoDB connection string
-    client = MongoClient("mongodb+srv://wardrobeUser:Wardrobe123@Wardrobe123.zljuhv4.mongodb.net/?retryWrites=true&w=majority&appName=SmartWardrobeCluster") # Connect to MongoDB Atlas
+    client = MongoClient("mongodb+srv://wardrobeUser:") # Connect to MongoDB Atlas
     db = client["smartwardrobe"] # Get database instance
     clothes = db["clothes"] # Get clothes collection
     print("Successfully connected to MongoDB!") # Print success message
